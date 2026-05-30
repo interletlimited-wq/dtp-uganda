@@ -1,0 +1,92 @@
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import Landing from "./pages/Landing";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Minting from "./pages/Minting";
+import Dashboard from "./pages/Dashboard";
+import Ledger from "./pages/Ledger";
+import Products from "./pages/Products";
+import Listings from "./pages/Listings";
+import RecordSale from "./pages/RecordSale";
+import Vehicles from "./pages/Vehicles";
+import Batches from "./pages/Batches";
+import EudrDocs from "./pages/EudrDocs";
+import Orders from "./pages/Orders";
+import ProfilePage from "./pages/ProfilePage";
+import ComingSoon from "./pages/ComingSoon";
+import ListingDetail from "./pages/ListingDetail";
+import SellerProfile from "./pages/SellerProfile";
+import StoresPage from "./pages/StoresPage";
+import Marketplace from "./pages/Marketplace";
+import PrivateMarketplace from "./pages/PrivateMarketplace";
+import IncomingRequestsPage from "./pages/IncomingRequestsPage";
+import HelpPage from "./pages/HelpPage";
+import MarketPrices from "./pages/MarketPrices";
+import SeasonalOutlook from "./pages/SeasonalOutlook";
+import VerifyActor from "./pages/VerifyActor";
+import ProfileSetup from "./pages/ProfileSetup";
+import Incomplete from "./pages/Incomplete";
+
+function PrivateRoute({ children }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
+}
+
+function CompleteRoute({ children }) {
+  const { user, isProfileComplete } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  if (!isProfileComplete()) return <Navigate to="/incomplete" replace />;
+  return children;
+}
+
+function GuestRoute({ children }) {
+  const { user, isProfileComplete } = useAuth();
+  if (user && isProfileComplete()) return <Navigate to="/dashboard" replace />;
+  if (user && !isProfileComplete()) return <Navigate to="/incomplete" replace />;
+  return children;
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+      <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
+      <Route path="/minting" element={<PrivateRoute><Minting /></PrivateRoute>} />
+      <Route path="/incomplete" element={<PrivateRoute><Incomplete /></PrivateRoute>} />
+      <Route path="/profile-setup" element={<PrivateRoute><ProfileSetup /></PrivateRoute>} />
+      <Route path="/dashboard" element={<CompleteRoute><Dashboard /></CompleteRoute>} />
+      <Route path="/ledger" element={<CompleteRoute><Ledger /></CompleteRoute>} />
+      <Route path="/products" element={<CompleteRoute><Products /></CompleteRoute>} />
+      <Route path="/listings" element={<CompleteRoute><Listings /></CompleteRoute>} />
+      <Route path="/record-sale" element={<CompleteRoute><RecordSale /></CompleteRoute>} />
+      <Route path="/vehicles" element={<CompleteRoute><Vehicles /></CompleteRoute>} />
+      <Route path="/batches" element={<CompleteRoute><Batches /></CompleteRoute>} />
+      <Route path="/eudr" element={<CompleteRoute><EudrDocs /></CompleteRoute>} />
+      <Route path="/orders" element={<CompleteRoute><Orders /></CompleteRoute>} />
+      <Route path="/profile" element={<CompleteRoute><ProfilePage /></CompleteRoute>} />
+      <Route path="/stores" element={<CompleteRoute><StoresPage /></CompleteRoute>} />
+      <Route path="/suppliers" element={<CompleteRoute><ComingSoon title="My Suppliers" /></CompleteRoute>} />
+      <Route path="/facilities" element={<CompleteRoute><ComingSoon title="My Facilities" /></CompleteRoute>} />
+      <Route path="/chain" element={<CompleteRoute><ComingSoon title="Chain of Custody" /></CompleteRoute>} />
+      <Route path="/jobs" element={<CompleteRoute><ComingSoon title="Active Jobs" /></CompleteRoute>} />
+      <Route path="/market-prices" element={<MarketPrices />} />
+      <Route path="/seasonal-outlook" element={<SeasonalOutlook />} />
+      <Route path="/verify" element={<VerifyActor />} />
+      <Route path="/help" element={<HelpPage />} />
+      <Route path="/marketplace" element={<Marketplace />} />
+      <Route path="/requests" element={<CompleteRoute><IncomingRequestsPage /></CompleteRoute>} />
+      <Route path="/marketplace/private" element={<PrivateRoute><PrivateMarketplace /></PrivateRoute>} />
+      <Route path="/marketplace/listing/:id" element={<ListingDetail />} />
+      <Route path="/seller/:sellerId" element={<SellerProfile />} />
+      <Route path="/analytics" element={<CompleteRoute><ComingSoon title="Analytics" /></CompleteRoute>} />
+      <Route path="/registry" element={<CompleteRoute><ComingSoon title="Trade ID Registry" /></CompleteRoute>} />
+      <Route path="/users" element={<CompleteRoute><ComingSoon title="User Management" /></CompleteRoute>} />
+      <Route path="/reports" element={<CompleteRoute><ComingSoon title="Reports" /></CompleteRoute>} />
+      <Route path="/settings" element={<CompleteRoute><ComingSoon title="System Settings" /></CompleteRoute>} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}

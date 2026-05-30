@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Dark background square with rounded corners -->
+  <rect width="64" height="64" rx="14" fill="#292929"/>
+  <!-- Gold accent top bar -->
+  <rect x="8" y="8" width="48" height="4" rx="2" fill="#F7B90F"/>
+  <!-- D shape left -->
+  <path d="M12 20 L12 48 L20 48 L20 20 Z" fill="#F7B90F"/>
+  <!-- T crossbar -->
+  <path d="M28 20 L52 20 L52 27 L28 27 Z" fill="white" opacity="0.9"/>
+  <!-- T stem -->
+  <path d="M37 27 L43 27 L43 48 L37 48 Z" fill="white" opacity="0.9"/>
+  <!-- Small gold dot -->
+  <circle cx="52" cy="48" r="4" fill="#F7B90F"/>
+</svg>

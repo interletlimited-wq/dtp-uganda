@@ -1,0 +1,110 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ShoppingBag, TrendingUp, Search, HelpCircle,
+  Smartphone, Menu, X, ArrowRight, Sprout
+} from "lucide-react";
+import LanguageSwitcher from "./LanguageSwitcher";
+
+// Pass activeRoute to highlight current page e.g. activeRoute="/verify"
+export default function PublicNav({ activeRoute = "" }) {
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const [showApp, setShowApp] = useState(false);
+
+  const links = [
+    { icon: ShoppingBag, label: "Marketplace",   path: "/marketplace"   },
+    { icon: TrendingUp,  label: "Market Prices", path: "/market-prices" },
+    { icon: Sprout,      label: "Seasonal Outlook", path: "/seasonal-outlook" },
+    { icon: Search,      label: "Verify Actor",  path: "/verify"        },
+    { icon: Smartphone,  label: "Download App",  path: null, action: () => setShowApp(true) },
+    { icon: HelpCircle,  label: "Help",          path: "/help"          },
+  ];
+
+  return (
+    <>
+      <nav className="bg-ink h-14 flex items-center px-4 md:px-6 sticky top-0 z-40 border-b border-white/10">
+        {/* Logo */}
+        <div className="flex items-center gap-3 cursor-pointer flex-shrink-0" onClick={() => navigate("/")}>
+          <div className="w-8 h-8 bg-gold rounded-lg flex items-center justify-center font-bold text-ink text-xs">DTP</div>
+          <div className="hidden sm:block">
+            <div className="text-white font-semibold text-sm leading-tight">Digital Trade Platform</div>
+            <div className="text-white/30 text-[10px]">Empowering Digital Economy</div>
+          </div>
+        </div>
+
+        {/* Desktop links */}
+        <div className="hidden md:flex items-center gap-0.5 ml-6">
+          {links.map(l => (
+            <button key={l.label}
+              onClick={() => l.action ? l.action() : navigate(l.path)}
+              className={`flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg transition-all ${
+                activeRoute === l.path
+                  ? "text-white bg-white/10"
+                  : "text-white/60 hover:text-white hover:bg-white/8"
+              }`}>
+              <l.icon size={13} />{l.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Right side */}
+        <div className="ml-auto flex items-center gap-2">
+          <LanguageSwitcher dark={true} />
+          <button onClick={() => navigate("/login")}
+            className="hidden md:block text-white/60 hover:text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-white/8 transition-all">
+            Sign in
+          </button>
+          <button onClick={() => navigate("/register")}
+            className="bg-gold hover:bg-gold-mid text-ink font-bold text-sm px-4 py-2 rounded-lg transition-all flex items-center gap-1.5">
+            Get started <ArrowRight size={13} />
+          </button>
+          <button onClick={() => setOpen(!open)} className="md:hidden text-white/60 p-2 rounded-lg hover:bg-white/8">
+            <Menu size={20} />
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile menu */}
+      {open && (
+        <div className="fixed inset-0 z-50 bg-ink flex flex-col">
+          <div className="h-14 flex items-center px-4 border-b border-white/10 justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gold rounded-lg flex items-center justify-center font-bold text-ink text-xs">DTP</div>
+              <div className="text-white font-semibold text-sm">Digital Trade Platform</div>
+            </div>
+            <button onClick={() => setOpen(false)} className="text-white/60 hover:text-white p-2"><X size={20} /></button>
+          </div>
+          <div className="flex-1 px-4 py-6 space-y-1">
+            {links.map(l => (
+              <button key={l.label}
+                onClick={() => { l.action ? l.action() : navigate(l.path); setOpen(false); }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/8 transition-all text-left text-sm">
+                <l.icon size={16} />{l.label}
+              </button>
+            ))}
+          </div>
+          <div className="px-4 pb-8 space-y-2">
+            <button onClick={() => { navigate("/register"); setOpen(false); }}
+              className="w-full bg-gold text-ink font-bold py-3 rounded-xl text-sm">Get started free</button>
+            <button onClick={() => { navigate("/login"); setOpen(false); }}
+              className="w-full border border-white/20 text-white font-medium py-3 rounded-xl text-sm">Sign in</button>
+          </div>
+        </div>
+      )}
+
+      {/* App modal */}
+      {showApp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+          <div className="bg-white rounded-2xl p-8 max-w-sm w-full relative shadow-2xl">
+            <button onClick={() => setShowApp(false)} className="absolute top-4 right-4 text-warm-muted hover:text-ink"><X size={18} /></button>
+            <div className="w-12 h-12 bg-ink rounded-xl flex items-center justify-center mb-4 mx-auto"><Smartphone size={22} className="text-gold" /></div>
+            <h3 className="text-lg font-bold text-ink text-center mb-2">Mobile App</h3>
+            <p className="text-warm-text text-sm text-center leading-relaxed mb-4">The DTP mobile app is in development. Full Android, iOS and USSD support coming Q3 2026.</p>
+            <p className="text-warm-muted text-xs text-center">Use the web platform on your phone browser in the meantime.</p>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
