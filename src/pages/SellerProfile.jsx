@@ -8,6 +8,7 @@ import { LISTINGS, MARKET_PRICES, formatUGX } from "../data/demo";
 import { SAMPLE_ACCOUNTS } from "../data/constants";
 import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../components/layout/DashboardLayout";
+import PublicNav from "../components/PublicNav";
 
 const CATEGORY_IMAGES = {
   "Coffee (Arabica)":    "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400&q=80",
