@@ -14,7 +14,7 @@ const ACTOR_TYPE_NAMES = {
   MFR: "Manufacturer", AGT: "Aggregator / Trader",
   EXP: "Exporter", IMP: "Importer", BYR: "Buyer / Offtaker",
   TRP: "Transporter", CSM: "Consumer", ADMIN: "Platform Administrator",
-  GOU: "GoU Oversight (MTIC)"
+  GOU: "GoU Oversight (MTIC)", FBR: "Foreign Buyer / International Trader"
 };
 
 const VERIFICATION_COLORS = {
@@ -115,14 +115,24 @@ export default function ProfilePage() {
               <div className="text-[10px] uppercase tracking-[0.12em] text-white/30 mb-1">Digital Trade Platform - Uganda</div>
               <div className="font-mono text-gold font-bold text-xl tracking-wider mb-4">{user?.tradeId}</div>
               <div className="grid grid-cols-3 gap-x-4 gap-y-2 mb-4">
-                {[
-                  ["Full name", user?.name],
-                  ["Actor type", ACTOR_TYPE_NAMES[user?.role] || user?.role],
-                  ["Grade", user?.grade || "-"],
-                  ["District", user?.district || "-"],
-                  ["Verified by", user?.verified || "-"],
-                  ["Status", "Active"],
-                ].map(([l, v]) => (
+                {(user?.role === "FBR"
+                  ? [
+                      ["Full name", user?.name],
+                      ["Actor type", ACTOR_TYPE_NAMES[user?.role] || user?.role],
+                      ["Country of origin", user?.country || "-"],
+                      ["Business", (user?.natureOfBusiness || []).join(", ") || "-"],
+                      ["Verified by", user?.verifiedLabel || `${user?.verified} Verified`],
+                      ["Status", "Active"],
+                    ]
+                  : [
+                      ["Full name", user?.name],
+                      ["Actor type", ACTOR_TYPE_NAMES[user?.role] || user?.role],
+                      ["Grade", user?.grade || "-"],
+                      ["District", user?.district || "-"],
+                      ["Verified by", user?.verifiedLabel || user?.verified || "-"],
+                      ["Status", "Active"],
+                    ]
+                ).map(([l, v]) => (
                   <div key={l}>
                     <div className="text-[9px] uppercase tracking-wider text-white/25">{l}</div>
                     <div className="text-white text-xs mt-0.5 font-medium">{v}</div>
@@ -130,10 +140,35 @@ export default function ProfilePage() {
                 ))}
               </div>
               <div className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border ${VERIFICATION_COLORS[user?.verified] || "bg-gold/10 border-gold/25 text-gold"}`}>
-                <Shield size={11} /> {user?.verified} Verified - Active
+                <Shield size={11} /> {user?.verified === "International" ? "International Verified" : `${user?.verified} Verified`} - Active
               </div>
             </div>
           </div>
+
+          {/* FBR contact & location */}
+          {user?.role === "FBR" && (
+            <div className="bg-white border border-warm-border rounded-xl p-5">
+              <h2 className="font-bold text-ink mb-4">Contact &amp; location</h2>
+              <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
+                {[
+                  ["Contact person", user?.contactPerson],
+                  ["Email", user?.contactEmail],
+                  ["Phone", user?.contactPhone],
+                  ["Website", user?.website],
+                  ["Address", user?.addressLine],
+                  ["City / Town", user?.city],
+                  ["State / Province", user?.stateProvince],
+                  ["Postal code", user?.postalCode],
+                  ["Country", user?.country],
+                ].filter(([, v]) => v).map(([l, v]) => (
+                  <div key={l} className="flex flex-col">
+                    <span className="text-[10px] uppercase tracking-wider text-warm-muted">{l}</span>
+                    <span className="text-sm text-ink font-medium break-words">{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Personal Details */}
           <div className="bg-white border border-warm-border rounded-xl p-5">
@@ -372,9 +407,10 @@ export default function ProfilePage() {
               {[
                 ["Trade ID", user?.tradeId, "font-mono text-gold font-bold"],
                 ["Role", ACTOR_TYPE_NAMES[user?.role] || user?.role, ""],
-                ["Grade", user?.grade || "-", ""],
-                ["District", user?.district || "-", ""],
-                ["Verified by", user?.verified || "-", ""],
+                ...(user?.role === "FBR"
+                  ? [["Country", user?.country || "-", ""]]
+                  : [["Grade", user?.grade || "-", ""], ["District", user?.district || "-", ""]]),
+                ["Verified by", user?.verifiedLabel || user?.verified || "-", ""],
                 ["Account status", "Active", "text-green-600 font-semibold"],
               ].map(([l, v, cls]) => (
                 <div key={l} className="flex items-center justify-between py-2 border-b border-warm-border last:border-0">
@@ -390,8 +426,8 @@ export default function ProfilePage() {
             <div className={`flex items-center gap-3 p-3 rounded-xl border ${VERIFICATION_COLORS[user?.verified] || "bg-warm-bg border-warm-border"}`}>
               <Shield size={18} className="flex-shrink-0" />
               <div>
-                <div className="text-sm font-bold">{user?.verified} Verified</div>
-                <div className="text-xs opacity-70">Identity confirmed</div>
+                <div className="text-sm font-bold">{user?.verifiedLabel || `${user?.verified} Verified`}</div>
+                <div className="text-xs opacity-70">{user?.role === "FBR" ? "International identity confirmed · private" : "Identity confirmed"}</div>
               </div>
             </div>
             <p className="text-xs text-warm-muted mt-3 leading-relaxed">

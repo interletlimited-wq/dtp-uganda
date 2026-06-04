@@ -16,11 +16,16 @@ const ROLE_COLORS = {
   BYR: "bg-teal-50 text-teal-700 border-teal-200",
   TRP: "bg-slate-50 text-slate-700 border-slate-200",
   CSM: "bg-pink-50 text-pink-700 border-pink-200",
+  FBR: "bg-cyan-50 text-cyan-700 border-cyan-200",
   ADMIN: "bg-gray-50 text-gray-700 border-gray-200",
   GOU: "bg-indigo-50 text-indigo-700 border-indigo-200",
   NPA: "bg-sky-50 text-sky-700 border-sky-200",
   MTIC: "bg-violet-50 text-violet-700 border-violet-200",
 };
+
+// Foreign buyers / international traders (FBR) are pinned to the top of the
+// demo-account list; everything else keeps its original order (stable sort).
+const DEMO_ACCOUNTS = [...SAMPLE_ACCOUNTS].sort((a, b) => (b.role === "FBR") - (a.role === "FBR"));
 
 export default function Login() {
   const navigate = useNavigate();
@@ -234,7 +239,7 @@ export default function Login() {
               {showAccounts && (
                 <div className="border-t border-warm-border">
                   <div className="p-3 grid grid-cols-1 gap-1.5 max-h-64 overflow-y-auto">
-                    {SAMPLE_ACCOUNTS.map((acc) => (
+                    {DEMO_ACCOUNTS.map((acc) => (
                       <button key={acc.username} onClick={() => fillAccount(acc)}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-warm-bg transition-all text-left group">
                         <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${ROLE_COLORS[acc.roleLabel || acc.role] || ROLE_COLORS.ADMIN}`}>

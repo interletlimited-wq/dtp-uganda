@@ -403,7 +403,7 @@ export function getTrustTick(ratingCount = 0) {
   return ratingCount >= TRUST_TICK_GREEN_MIN ? "green" : "gray";
 }
 
-export const BUYER_ROLES = ["BYR", "EXP", "MFR", "AGT", "IMP", "CSM"];
+export const BUYER_ROLES = ["BYR", "EXP", "MFR", "AGT", "IMP", "CSM", "FBR"];
 
 export const ROLE_DEFAULT_CATEGORIES = {
   AGR: ["Food Crops", "Cash Crops"],
@@ -414,6 +414,7 @@ export const ROLE_DEFAULT_CATEGORIES = {
   IMP: ["Food Crops", "Cash Crops", "Processed Agricultural Products"],
   BYR: ["Food Crops", "Cash Crops", "Processed Agricultural Products", "Fisheries"],
   CSM: ["Food Crops", "Processed Agricultural Products"],
+  FBR: ["Cash Crops", "Food Crops", "Processed Agricultural Products", "Fisheries"],
 };
 
 export const BATCHES = [
@@ -557,7 +558,7 @@ const ROLE_DEMO_USERNAMES = {
   AGR: "nalwanga_sarah", VAP: "mbale_hullers", MFR: "kampala_mills",
   AGT: "kapchorwa_traders", EXP: "kahawa_exports", BYR: "volcafe_uganda",
   TRP: "ssekandi_transport", CSM: "john_musoke", IMP: "nile_traders",
-  ADMIN: "dtp_admin", GOU: "mtic_analyst",
+  ADMIN: "dtp_admin", GOU: "mtic_analyst", FBR: "neumann_gruppe",
 };
 
 export function getActorTransactionsFallback(username, role) {

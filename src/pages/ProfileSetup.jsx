@@ -4,12 +4,12 @@ import { useAuth } from "../context/AuthContext";
 import {
   ArrowRight, ArrowLeft, Check, X, ChevronDown, LogOut,
   Sprout, Factory, Building2, Handshake, Ship, PackageOpen,
-  ShoppingCart, Truck, User as UserIcon
+  ShoppingCart, Truck, Globe, User as UserIcon
 } from "lucide-react";
 
 const LUCIDE_ICONS = {
   Sprout, Factory, Building2, Handshake, Ship, PackageOpen,
-  ShoppingCart, Truck, User: UserIcon,
+  ShoppingCart, Truck, Globe, User: UserIcon,
 };
 
 function RoleIcon({ name, size = 16, className = "" }) {
@@ -18,7 +18,7 @@ function RoleIcon({ name, size = 16, className = "" }) {
 }
 import {
   ACTOR_TYPES, ENTITY_TYPES, MFR_SECTORS, VAP_PROCESSING_TYPES,
-  PRODUCTS, UGANDAN_BANKS
+  PRODUCTS, UGANDAN_BANKS, COUNTRIES, FBR_NATURE_OF_BUSINESS
 } from "../data/constants";
 import {
   REGIONS as GEO_REGIONS, SUB_REGIONS as GEO_SUB,
@@ -33,10 +33,20 @@ const STEPS = [
   { id: 5, label: "Payment" },
 ];
 
-function StepBar({ current }) {
+// Foreign actors capture country/business, an international identity, and their
+// own contact & location details instead of Ugandan regions.
+const FBR_STEPS = [
+  { id: 1, label: "Country & business" },
+  { id: 2, label: "Identity" },
+  { id: 3, label: "Products" },
+  { id: 4, label: "Contact & location" },
+  { id: 5, label: "Payment" },
+];
+
+function StepBar({ current, steps = STEPS }) {
   return (
     <div className="flex items-center gap-0 mb-8">
-      {STEPS.map((s, i) => (
+      {steps.map((s, i) => (
         <div key={s.id} className="flex items-center flex-1 last:flex-none">
           <div className="flex flex-col items-center">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
@@ -50,7 +60,7 @@ function StepBar({ current }) {
               {s.label}
             </div>
           </div>
-          {i < STEPS.length - 1 && (
+          {i < steps.length - 1 && (
             <div className={`flex-1 h-0.5 mx-2 mb-4 transition-all ${current > s.id ? "bg-green-400" : "bg-warm-border"}`} />
           )}
         </div>
@@ -59,22 +69,64 @@ function StepBar({ current }) {
   );
 }
 
+function RegisteringAs({ actor }) {
+  if (!actor) return null;
+  return (
+    <div className="flex items-center gap-3 p-3 bg-warm-bg border border-warm-border rounded-xl mb-2">
+      <div className="w-8 h-8 bg-ink rounded-lg flex items-center justify-center flex-shrink-0">
+        <RoleIcon name={actor.icon} size={16} className="text-gold" />
+      </div>
+      <div>
+        <div className="text-xs text-warm-muted">Registering as</div>
+        <div className="text-sm font-bold text-ink">{actor.name} <span className="text-gold font-mono text-xs">({actor.code})</span></div>
+      </div>
+    </div>
+  );
+}
+
+// FBR (Foreign Buyer / International Trader): country of origin + nature of business.
+function Step1FBR({ data, onChange, actor }) {
+  const nature = data.natureOfBusiness || [];
+  function toggleNature(n) {
+    onChange({ natureOfBusiness: nature.includes(n) ? nature.filter(x => x !== n) : [...nature, n] });
+  }
+  return (
+    <div className="space-y-5">
+      <RegisteringAs actor={actor} />
+      <div>
+        <label className="block text-xs font-semibold text-warm-text uppercase tracking-wider mb-1.5">Country of origin <span className="text-red-400">*</span></label>
+        <select value={data.country} onChange={e => onChange({ country: e.target.value })}
+          className="w-full px-3 py-2.5 border border-warm-border rounded-lg text-sm text-ink bg-white">
+          <option value="">Select country</option>
+          {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <p className="text-[11px] text-warm-muted mt-1">Used for analytics, customs routing and display of the sourcing origin.</p>
+      </div>
+      <div>
+        <label className="block text-xs font-semibold text-warm-text uppercase tracking-wider mb-2">Nature of business <span className="text-red-400">*</span> <span className="text-warm-muted normal-case font-normal">(select all that apply)</span></label>
+        <div className="grid grid-cols-2 gap-2">
+          {FBR_NATURE_OF_BUSINESS.map(n => {
+            const on = nature.includes(n);
+            return (
+              <button key={n} type="button" onClick={() => toggleNature(n)}
+                className={`p-2.5 border rounded-xl text-xs text-left transition-all ${on ? "border-gold bg-gold-light font-semibold text-ink" : "border-warm-border hover:border-gold/50 text-warm-text"}`}>
+                {n}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Step1({ data, onChange, role }) {
   const actor = ACTOR_TYPES.find(a => a.code === role);
   const isMFR = role === "MFR";
+  if (actor?.foreign) return <Step1FBR data={data} onChange={onChange} actor={actor} />;
   return (
     <div className="space-y-5">
-      {actor && (
-        <div className="flex items-center gap-3 p-3 bg-warm-bg border border-warm-border rounded-xl mb-2">
-          <div className="w-8 h-8 bg-ink rounded-lg flex items-center justify-center flex-shrink-0">
-            <RoleIcon name={actor.icon} size={16} className="text-gold" />
-          </div>
-          <div>
-            <div className="text-xs text-warm-muted">Registering as</div>
-            <div className="text-sm font-bold text-ink">{actor.name} <span className="text-gold font-mono text-xs">({actor.code})</span></div>
-          </div>
-        </div>
-      )}
+      <RegisteringAs actor={actor} />
       <div>
         <label className="block text-xs font-semibold text-warm-text uppercase tracking-wider mb-2">Registration type <span className="text-red-400">*</span></label>
         <div className="grid grid-cols-2 gap-3">
@@ -118,6 +170,123 @@ function Step1({ data, onChange, role }) {
           </select>
         </div>
       )}
+    </div>
+  );
+}
+
+// FBR international identity path — passport (individual) or business registration (entity).
+function Step2FBR({ data, onChange }) {
+  const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState("");
+  const method = data.verifyMethod === "intl_brn" ? "intl_brn" : "passport";
+
+  function setMethod(m) {
+    onChange({ verifyMethod: m, verified: false, verifiedLabel: "" });
+    setVerifyError("");
+  }
+
+  async function handleVerify() {
+    setVerifyError("");
+    const name = (data.verifiedName || "").trim();
+    if (!name) { setVerifyError("Please enter the registered legal name."); return; }
+    if (method === "passport" && (!data.passport || data.passport.length < 5)) { setVerifyError("Please enter a valid passport number."); return; }
+    if (method === "intl_brn" && (!data.intlReg || data.intlReg.length < 4)) { setVerifyError("Please enter a valid business registration number."); return; }
+    if (!data.verifyCountry) { setVerifyError("Please select the issuing country."); return; }
+    setVerifying(true);
+    await new Promise(r => setTimeout(r, 1500));
+    setVerifying(false);
+    const docLabel = method === "passport" ? "Passport Verified" : "Business Registration Verified";
+    onChange({
+      verified: true,
+      type: method === "passport" ? "individual" : "entity",
+      verifiedLabel: `${docLabel} (${data.verifyCountry})`,
+    });
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="bg-gold-light border border-gold-border rounded-xl p-3 text-xs text-gold-dark leading-relaxed">
+        Foreign actors hold no Ugandan identity, so you are verified through an international identity path — not NIRA, URA or URSB. This detail stays private to you and platform admins; the public sees only your rating-based trust tick.
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-warm-text uppercase tracking-wider mb-2">Verification method</label>
+        <div className="grid grid-cols-2 gap-2">
+          {[{ id: "passport", label: "Passport", desc: "Individual" }, { id: "intl_brn", label: "Business Registration", desc: "Entity" }].map(m => (
+            <button key={m.id} type="button" onClick={() => setMethod(m.id)}
+              className={`p-3 border-2 rounded-xl text-center transition-all ${method === m.id ? "border-gold bg-gold-light" : "border-warm-border hover:border-gold/50"}`}>
+              <div className="font-bold text-ink text-sm">{m.label}</div>
+              <div className="text-[11px] text-warm-muted">{m.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-warm-text uppercase tracking-wider mb-1.5">{method === "passport" ? "Full name (as on passport)" : "Registered entity name"} <span className="text-red-400">*</span></label>
+        <input value={data.verifiedName} onChange={e => onChange({ verifiedName: e.target.value, verified: false })}
+          className="w-full px-3 py-2.5 border border-warm-border rounded-lg text-sm text-ink bg-white placeholder:text-warm-muted"
+          placeholder={method === "passport" ? "e.g. Hans Müller" : "e.g. Neumann Gruppe GmbH"} />
+      </div>
+
+      {method === "passport" ? (
+        <div>
+          <label className="block text-xs font-semibold text-warm-text uppercase tracking-wider mb-1.5">Passport number <span className="text-red-400">*</span></label>
+          <input value={data.passport} onChange={e => onChange({ passport: e.target.value.toUpperCase(), verified: false })}
+            className="w-full px-3 py-2.5 border border-warm-border rounded-lg text-sm font-mono text-ink bg-white placeholder:text-warm-muted"
+            placeholder="Passport number" />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-warm-text uppercase tracking-wider mb-1.5">International business registration number <span className="text-red-400">*</span></label>
+            <input value={data.intlReg} onChange={e => onChange({ intlReg: e.target.value.toUpperCase(), verified: false })}
+              className="w-full px-3 py-2.5 border border-warm-border rounded-lg text-sm font-mono text-ink bg-white placeholder:text-warm-muted"
+              placeholder="Registration number" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-warm-text uppercase tracking-wider mb-1.5">Tax identifier <span className="text-warm-muted normal-case font-normal">(optional)</span></label>
+            <input value={data.intlTin} onChange={e => onChange({ intlTin: e.target.value.toUpperCase(), verified: false })}
+              className="w-full px-3 py-2.5 border border-warm-border rounded-lg text-sm font-mono text-ink bg-white placeholder:text-warm-muted"
+              placeholder="VAT / tax ID" />
+          </div>
+        </div>
+      )}
+
+      <div>
+        <label className="block text-xs font-semibold text-warm-text uppercase tracking-wider mb-1.5">{method === "passport" ? "Country of issue" : "Country of registration"} <span className="text-red-400">*</span></label>
+        <select value={data.verifyCountry} onChange={e => onChange({ verifyCountry: e.target.value, verified: false })}
+          className="w-full px-3 py-2.5 border border-warm-border rounded-lg text-sm text-ink bg-white">
+          <option value="">Select country</option>
+          {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+      </div>
+
+      {verifyError && <p className="text-xs text-red-500 flex items-center gap-1"><X size={11} />{verifyError}</p>}
+
+      {data.verified ? (
+        <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+          <Check size={18} className="text-green-500 flex-shrink-0" />
+          <div>
+            <div className="text-sm font-semibold text-green-700">International Verified</div>
+            <div className="text-xs text-green-600">{data.verifiedLabel} · {data.verifiedName}</div>
+          </div>
+        </div>
+      ) : (
+        <button onClick={handleVerify} disabled={verifying}
+          className="w-full bg-ink hover:bg-ink-mid disabled:opacity-50 text-white font-semibold py-2.5 rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+          {verifying ? (
+            <span className="flex items-center gap-2">
+              <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+              Verifying international identity...
+            </span>
+          ) : "Verify international identity"}
+        </button>
+      )}
+      <p className="text-xs text-warm-muted text-center">Verification is simulated in this environment. Any valid-length input will verify.</p>
     </div>
   );
 }
@@ -276,6 +445,60 @@ function Step3({ data, onChange }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// FBR contact information & location (address) — replaces the Ugandan regions step.
+function Step4FBR({ data, onChange }) {
+  const field = (key, label, opts = {}) => (
+    <div>
+      <label className="block text-xs font-semibold text-warm-text uppercase tracking-wider mb-1.5">
+        {label} {opts.required ? <span className="text-red-400">*</span> : <span className="text-warm-muted normal-case font-normal">(optional)</span>}
+      </label>
+      <input
+        type={opts.type || "text"}
+        value={data[key] || ""}
+        onChange={e => onChange({ [key]: e.target.value })}
+        placeholder={opts.placeholder || ""}
+        className="w-full px-3 py-2.5 border border-warm-border rounded-lg text-sm text-ink bg-white placeholder:text-warm-muted" />
+    </div>
+  );
+  return (
+    <div className="space-y-5">
+      <div>
+        <h3 className="text-sm font-bold text-ink mb-1">Contact information</h3>
+        <p className="text-xs text-warm-muted mb-3">How verified Ugandan suppliers and the platform reach you.</p>
+        <div className="space-y-4">
+          {field("contactPerson", "Contact person", { placeholder: "Full name of primary contact", required: true })}
+          <div className="grid grid-cols-2 gap-3">
+            {field("contactEmail", "Business email", { type: "email", placeholder: "name@company.com", required: true })}
+            {field("contactPhone", "Phone (with country code)", { placeholder: "+49 ...", required: true })}
+          </div>
+          {field("website", "Website", { placeholder: "https://" })}
+        </div>
+      </div>
+
+      <div className="border-t border-warm-border pt-5">
+        <h3 className="text-sm font-bold text-ink mb-1">Location &amp; address</h3>
+        <p className="text-xs text-warm-muted mb-3">Your business address in your country of origin.</p>
+        <div className="space-y-4">
+          {field("addressLine", "Address", { placeholder: "Street and number", required: true })}
+          <div className="grid grid-cols-2 gap-3">
+            {field("city", "City / Town", { placeholder: "City", required: true })}
+            {field("stateProvince", "State / Province")}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {field("postalCode", "Postal / ZIP code")}
+            <div>
+              <label className="block text-xs font-semibold text-warm-text uppercase tracking-wider mb-1.5">Country</label>
+              <div className="w-full px-3 py-2.5 border border-warm-border rounded-lg text-sm text-warm-text bg-warm-bg">
+                {data.country || "—"}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -494,21 +717,33 @@ export default function ProfileSetup() {
   const navigate = useNavigate();
   const { user, regData, updateReg, completeRegistration } = useAuth();
 
+  const role = user?.role || regData.role || "AGR";
+  const isFBR = role === "FBR";
+
   const [step, setStep] = useState(1);
   const [data, setData] = useState({
     type: regData.type || "",
     entityType: regData.entityType || "",
     grade: regData.grade || "",
     sector: regData.sector || "",
-    verifyMethod: "nin",
+    verifyMethod: isFBR ? "passport" : "nin",
     nin: "", tin: "", brn: "",
     verified: false,
     verifiedName: "",
     products: regData.products || [],
     districts: regData.districts || [],
     payments: [],
+    // FBR international identity path
+    country: regData.country || "",
+    natureOfBusiness: regData.natureOfBusiness || [],
+    passport: "", intlReg: "", intlTin: "",
+    verifyCountry: "", verifiedLabel: "",
+    // FBR contact & location (replaces Ugandan regions)
+    contactPerson: "", contactEmail: regData.email || "", contactPhone: regData.phone || "",
+    website: "", addressLine: "", city: "", stateProvince: "", postalCode: "",
   });
   const [error, setError] = useState("");
+  const steps = isFBR ? FBR_STEPS : STEPS;
 
   function onChange(fields) {
     setData(prev => ({ ...prev, ...fields }));
@@ -517,10 +752,15 @@ export default function ProfileSetup() {
 
   function validateStep() {
     if (step === 1) {
-      if (!data.type) { setError("Please select Individual or Entity."); return false; }
-      if (data.type === "entity" && !data.entityType) { setError("Please select your entity type."); return false; }
-      if (!data.grade) { setError("Please select your grade or scale."); return false; }
-      if (user?.role === "MFR" && !data.sector) { setError("Please select your production sector."); return false; }
+      if (isFBR) {
+        if (!data.country) { setError("Please select your country of origin."); return false; }
+        if (!(data.natureOfBusiness && data.natureOfBusiness.length)) { setError("Please select at least one nature of business."); return false; }
+      } else {
+        if (!data.type) { setError("Please select Individual or Entity."); return false; }
+        if (data.type === "entity" && !data.entityType) { setError("Please select your entity type."); return false; }
+        if (!data.grade) { setError("Please select your grade or scale."); return false; }
+        if (role === "MFR" && !data.sector) { setError("Please select your production sector."); return false; }
+      }
     }
     if (step === 2) {
       if (!data.verified) { setError("Please verify your identity before continuing."); return false; }
@@ -529,10 +769,19 @@ export default function ProfileSetup() {
       if (data.products.length === 0) { setError("Please select at least one product or commodity."); return false; }
     }
     if (step === 4) {
-      if (data.districts.length === 0) { setError("Please add at least one district."); return false; }
+      if (isFBR) {
+        if (!data.contactPerson?.trim()) { setError("Please enter a contact person."); return false; }
+        if (!data.contactEmail?.trim()) { setError("Please enter a business email."); return false; }
+        if (!data.contactPhone?.trim()) { setError("Please enter a phone number."); return false; }
+        if (!data.addressLine?.trim()) { setError("Please enter your address."); return false; }
+        if (!data.city?.trim()) { setError("Please enter your city or town."); return false; }
+      } else if (data.districts.length === 0) {
+        setError("Please add at least one district."); return false;
+      }
     }
     if (step === 5) {
-      if (data.payments.length === 0) { setError("Please add at least one payment method."); return false; }
+      // Ugandan payment methods are optional for foreign (FBR) actors.
+      if (!isFBR && data.payments.length === 0) { setError("Please add at least one payment method."); return false; }
     }
     return true;
   }
@@ -554,7 +803,7 @@ export default function ProfileSetup() {
     const num = String(Math.floor(10000 + Math.random() * 89999));
     const tradeId = `${prefix}-${num}`;
     updateReg({ ...data });
-    completeRegistration(tradeId);
+    completeRegistration(tradeId, data);
     navigate("/minting", { state: { tradeId, role, name: data.verifiedName } });
   }
 
@@ -581,16 +830,16 @@ export default function ProfileSetup() {
         <div className="w-full max-w-2xl">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-ink mb-1">Complete your profile</h1>
-            <p className="text-warm-text text-sm">Step {step} of {STEPS.length}  -  {STEPS[step-1].label}</p>
+            <p className="text-warm-text text-sm">Step {step} of {steps.length}  -  {steps[step-1].label}</p>
           </div>
 
-          <StepBar current={step} />
+          <StepBar current={step} steps={steps} />
 
           <div className="bg-white border border-warm-border rounded-2xl p-8 shadow-sm">
-            {step === 1 && <Step1 data={data} onChange={onChange} role={user?.role || regData.role} />}
-            {step === 2 && <Step2 data={data} onChange={onChange} />}
+            {step === 1 && <Step1 data={data} onChange={onChange} role={role} />}
+            {step === 2 && (isFBR ? <Step2FBR data={data} onChange={onChange} /> : <Step2 data={data} onChange={onChange} />)}
             {step === 3 && <Step3 data={data} onChange={onChange} />}
-            {step === 4 && <Step4 data={data} onChange={onChange} />}
+            {step === 4 && (isFBR ? <Step4FBR data={data} onChange={onChange} /> : <Step4 data={data} onChange={onChange} />)}
             {step === 5 && <Step5 data={data} onChange={onChange} />}
 
             {error && (

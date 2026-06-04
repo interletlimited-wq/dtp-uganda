@@ -29,6 +29,8 @@ import ProfileSetup from "./pages/ProfileSetup";
 import Incomplete from "./pages/Incomplete";
 import GovernmentAnalytics from "./pages/GovernmentAnalytics";
 import GovernmentReport from "./pages/GovernmentReport";
+import SourcingBoard from "./pages/SourcingBoard";
+import MySupplyRequests from "./pages/MySupplyRequests";
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
@@ -78,6 +80,8 @@ export default function App() {
       <Route path="/seasonal-outlook" element={<SeasonalOutlook />} />
       <Route path="/government-analytics" element={<GovernmentAnalytics />} />
       <Route path="/government-analytics/:reportId" element={<GovernmentReport />} />
+      <Route path="/sourcing-board" element={<SourcingBoard />} />
+      <Route path="/sourcing-board/mine" element={<PrivateRoute><MySupplyRequests /></PrivateRoute>} />
       <Route path="/verify" element={<VerifyActor />} />
       <Route path="/help" element={<HelpPage />} />
       <Route path="/marketplace" element={<Marketplace />} />

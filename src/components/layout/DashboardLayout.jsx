@@ -9,7 +9,7 @@ import {
   Link, User, Settings, LogOut, Menu, X, Shield,
   Bell, ChevronDown, Sprout, Factory, Building2,
   Handshake, Ship, PackageOpen, ShoppingCart, Truck,
-  BarChart3, Users, FileText, Store, Package, PenLine, Lock, Inbox, HelpCircle, Lightbulb, ArrowRight as ArrowRightIcon
+  BarChart3, Users, FileText, Store, Package, PenLine, Lock, Inbox, HelpCircle, Lightbulb, Globe, ClipboardList, ArrowRight as ArrowRightIcon
 } from "lucide-react";
 
 const ROLE_NAV = {
@@ -137,19 +137,27 @@ const ROLE_NAV = {
     { icon: Users, label: "Actor Registry", path: "/registry" },
     { icon: TrendingUp, label: "Market Prices", path: "/market-prices" },
   ],
+  FBR: [
+    { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+    { icon: ShoppingBag, label: "Public Marketplace", path: "/marketplace" },
+    { icon: Lock, label: "Private Marketplace", path: "/marketplace/private" },
+    { icon: ShoppingCart, label: "My Orders", path: "/orders" },
+    { icon: TrendingUp, label: "Market Prices", path: "/market-prices" },
+    { icon: User, label: "My Profile", path: "/profile" },
+  ],
 };
 
 const ROLE_ICONS = {
   AGR: Sprout, VAP: Factory, MFR: Building2, AGT: Handshake,
   EXP: Ship, IMP: PackageOpen, BYR: ShoppingCart, TRP: Truck,
-  CSM: User, ADMIN: Shield, GOU: BarChart3,
+  CSM: User, ADMIN: Shield, GOU: BarChart3, FBR: Globe,
 };
 
 const ROLE_COLORS = {
   AGR: "bg-green-500", VAP: "bg-amber-500", MFR: "bg-blue-500",
   AGT: "bg-purple-500", EXP: "bg-red-500", IMP: "bg-orange-500",
   BYR: "bg-teal-500", TRP: "bg-slate-500", CSM: "bg-pink-500",
-  ADMIN: "bg-gray-700", GOU: "bg-indigo-600",
+  ADMIN: "bg-gray-700", GOU: "bg-indigo-600", FBR: "bg-cyan-600",
 };
 
 
@@ -437,6 +445,24 @@ export default function DashboardLayout({ children }) {
       { icon: TrendingUp, label: "Market Prices", path: "/market-prices" },
     ];
   }
+  // A16 — Supply Requests group (Sourcing Board + My Supply Requests) for
+  // buyer/seller-capable roles. FBR sees the foreign-facing "Supply Note" labels.
+  const SOURCING_ROLES = ["AGR", "VAP", "MFR", "AGT", "EXP", "IMP", "BYR", "CSM", "FBR"];
+  if (SOURCING_ROLES.includes(role)) {
+    navItems = [...navItems];
+    const group = role === "FBR"
+      ? [
+          { section: true, label: "Supply Notes" },
+          { icon: ClipboardList, label: "Raise a Supply Note", path: "/sourcing-board?new=1", sub: true },
+          { icon: Inbox, label: "My Supply Notes", path: "/sourcing-board/mine", sub: true },
+        ]
+      : [
+          { section: true, label: "Supply Requests" },
+          { icon: ClipboardList, label: "Sourcing Board", path: "/sourcing-board", sub: true },
+          { icon: Inbox, label: "My Supply Requests", path: "/sourcing-board/mine", sub: true },
+        ];
+    navItems.splice(1, 0, ...group);
+  }
   const RoleIcon = ROLE_ICONS[role] || User;
   const roleColor = ROLE_COLORS[role] || "bg-gray-500";
 
@@ -468,6 +494,9 @@ export default function DashboardLayout({ children }) {
 
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           {navItems.map((item) => {
+            if (item.section) {
+              return <div key={`sec-${item.label}`} className="px-3 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-white/30">{item.label}</div>;
+            }
             const active = location.pathname === item.path;
             return (
               <button key={item.path} onClick={() => { navigate(item.path); setSidebarOpen(false); }}

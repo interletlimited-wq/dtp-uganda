@@ -1,16 +1,16 @@
 import { useState } from "react";
 import PublicNav from "../components/PublicNav";
 import { useNavigate } from "react-router-dom";
-import { Search, Shield, CheckCircle, XCircle, AlertCircle, MapPin, Package, Store, ArrowRight, User, Building2, Truck, Sprout, Factory, Handshake, Ship, ShoppingCart, PackageOpen, BarChart3 } from "lucide-react";
+import { Search, Shield, CheckCircle, XCircle, AlertCircle, MapPin, Package, Store, ArrowRight, User, Building2, Truck, Sprout, Factory, Handshake, Ship, ShoppingCart, PackageOpen, BarChart3, Globe } from "lucide-react";
 import { SAMPLE_ACCOUNTS } from "../data/constants";
 import { STORES, PRODUCTS_DATA, getSellerRatingCount, getTrustTick } from "../data/demo";
 import PublicFooter from "../components/PublicFooter";
 import { useAuth } from "../context/AuthContext";
 import TrustTick from "../components/TrustTick";
 
-const ROLE_ICONS = { AGR: Sprout, VAP: Factory, MFR: Building2, AGT: Handshake, EXP: Ship, IMP: PackageOpen, BYR: ShoppingCart, TRP: Truck, CSM: User, ADMIN: Shield, GOU: BarChart3 };
-const ROLE_NAMES = { AGR: "Farmer / Agro-producer", VAP: "Value-added Processor", MFR: "Manufacturer", AGT: "Aggregator / Trader", EXP: "Exporter", IMP: "Importer", BYR: "Buyer / Offtaker", TRP: "Transporter", CSM: "Consumer", ADMIN: "Platform Administrator", GOU: "GoU Oversight" };
-const ROLE_COLORS = { AGR: "bg-green-500", VAP: "bg-amber-500", MFR: "bg-blue-500", AGT: "bg-purple-500", EXP: "bg-red-500", IMP: "bg-orange-500", BYR: "bg-teal-500", TRP: "bg-slate-500", CSM: "bg-pink-500", ADMIN: "bg-gray-700", GOU: "bg-indigo-600" };
+const ROLE_ICONS = { AGR: Sprout, VAP: Factory, MFR: Building2, AGT: Handshake, EXP: Ship, IMP: PackageOpen, BYR: ShoppingCart, TRP: Truck, CSM: User, ADMIN: Shield, GOU: BarChart3, FBR: Globe };
+const ROLE_NAMES = { AGR: "Farmer / Agro-producer", VAP: "Value-added Processor", MFR: "Manufacturer", AGT: "Aggregator / Trader", EXP: "Exporter", IMP: "Importer", BYR: "Buyer / Offtaker", TRP: "Transporter", CSM: "Consumer", ADMIN: "Platform Administrator", GOU: "GoU Oversight", FBR: "Foreign Buyer / International Trader" };
+const ROLE_COLORS = { AGR: "bg-green-500", VAP: "bg-amber-500", MFR: "bg-blue-500", AGT: "bg-purple-500", EXP: "bg-red-500", IMP: "bg-orange-500", BYR: "bg-teal-500", TRP: "bg-slate-500", CSM: "bg-pink-500", ADMIN: "bg-gray-700", GOU: "bg-indigo-600", FBR: "bg-cyan-600" };
 
 function ActorProfile({ actor }) {
   const RoleIcon = ROLE_ICONS[actor.role] || User;
@@ -121,7 +121,7 @@ function ActorProfile({ actor }) {
           ))}
         </div>
         <p className="text-[11px] text-warm-muted mt-3 leading-relaxed">
-          Identity verification (NIRA / URA / URSB) is held privately and is not shown publicly. The trust tick above is earned from ratings on completed transactions.
+          Identity verification (NIRA, URA, URSB or International) is held privately and is not shown publicly. The trust tick above is earned from ratings on completed transactions.
         </p>
       </div>
         <footer className="bg-ink mt-8 px-6 py-6 border-t border-white/10">

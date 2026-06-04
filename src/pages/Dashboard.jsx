@@ -8,7 +8,8 @@ import {
   AlertCircle, Clock, Package, Truck, Star, Bell,
   FileText, Users, BarChart3, ShoppingBag, BookOpen,
   MapPin, Calendar, ChevronRight, Activity, Zap,
-  Ship, Factory, Sprout, Award, CheckCircle, XCircle
+  Ship, Factory, Sprout, Award, CheckCircle, XCircle,
+  Globe, ShoppingCart, Lock, ClipboardList
 } from "lucide-react";
 import {
   TRANSACTIONS, LISTINGS, BATCHES, MARKET_PRICES,
@@ -1214,6 +1215,77 @@ function IncomingRequests({ username, role }) {
 
 // ── Incoming Purchase Requests Component ─────────────────────────────────────
 
+// ─── FBR Dashboard (Foreign Buyer / International Trader) ──────
+function FBRDashboard({ user }) {
+  const navigate = useNavigate();
+  const nature = user?.natureOfBusiness || [];
+  const products = user?.products || [];
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-bold text-ink">Welcome, {user?.name}</h1>
+          <p className="text-sm text-warm-text">Foreign Buyer / International Trader{user?.country ? ` · sourcing from ${user.country}` : ""}</p>
+        </div>
+        <div className="text-xs text-warm-muted px-3 py-2 bg-warm-bg border border-warm-border rounded-xl font-mono">{user?.tradeId}</div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <StatCard label="Country of origin" value={user?.country || "—"} sub="Sourcing origin" icon={Globe} color="bg-cyan-50" iconColor="text-cyan-600" />
+        <StatCard label="Business lines" value={nature.length || "—"} sub={nature.slice(0, 2).join(", ") || "Not set"} icon={Ship} color="bg-blue-50" iconColor="text-blue-600" />
+        <StatCard label="Products of interest" value={products.length} sub="Sourcing focus" icon={Package} color="bg-amber-50" iconColor="text-amber-600" />
+        <StatCard label="Account status" value="Active" sub="International Verified" icon={CheckCircle} color="bg-green-50" iconColor="text-green-600" />
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-6">
+        <div className="md:col-span-2 bg-white border border-warm-border rounded-xl p-5">
+          <SectionHeader title="Source from verified Ugandan suppliers" />
+          <p className="text-sm text-warm-text mb-4">Browse the marketplace to buy directly from identity-verified Ugandan farmers, processors, manufacturers and aggregators. Cross-border orders generate AfCFTA / EUDR documentation automatically.</p>
+          <div className="flex flex-wrap gap-3">
+            <button onClick={() => navigate("/marketplace")}
+              className="flex items-center gap-2 bg-gold hover:bg-gold-mid text-ink font-bold px-4 py-2.5 rounded-lg text-sm transition-all">
+              <ShoppingBag size={15} /> Public Marketplace
+            </button>
+            <button onClick={() => navigate("/marketplace/private")}
+              className="flex items-center gap-2 border border-warm-border hover:border-ink text-ink font-semibold px-4 py-2.5 rounded-lg text-sm transition-all">
+              <Lock size={15} /> Private Marketplace
+            </button>
+            <button onClick={() => navigate("/orders")}
+              className="flex items-center gap-2 border border-warm-border hover:border-ink text-ink font-semibold px-4 py-2.5 rounded-lg text-sm transition-all">
+              <ShoppingCart size={15} /> My Orders
+            </button>
+          </div>
+        </div>
+        <div className="bg-ink rounded-xl p-5 text-white">
+          <div className="flex items-center gap-2 mb-2">
+            <Globe size={16} className="text-gold" />
+            <h3 className="font-bold text-sm">Sourcing Board</h3>
+          </div>
+          <p className="text-white/50 text-xs leading-relaxed mb-3">
+            Post Supply Notes stating the products, quantities, quality, payment and transport terms you need, and receive offers from verified Ugandan suppliers.
+          </p>
+          <button onClick={() => navigate("/sourcing-board?new=1")}
+            className="w-full bg-gold hover:bg-gold-mid text-ink font-bold py-2.5 rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+            <ClipboardList size={15} /> Raise a Supply Note
+          </button>
+        </div>
+      </div>
+
+      {nature.length > 0 && (
+        <div className="bg-white border border-warm-border rounded-xl p-5 mt-6">
+          <SectionHeader title="Nature of business" />
+          <div className="flex flex-wrap gap-2">
+            {nature.map(n => (
+              <span key={n} className="text-xs bg-warm-bg border border-warm-border text-warm-text px-3 py-1.5 rounded-full">{n}</span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Main Dashboard router ────────────────────────────────────
 export default function Dashboard() {
   const { user } = useAuth();
 
@@ -1229,6 +1301,7 @@ export default function Dashboard() {
     CSM: CSMDashboard,
     ADMIN: ADMINDashboard,
     GOU: GOUDashboard,
+    FBR: FBRDashboard,
   };
 
   const RoleDashboard = dashboards[user?.role] || AGRDashboard;

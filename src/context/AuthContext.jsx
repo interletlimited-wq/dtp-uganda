@@ -16,6 +16,9 @@ export function AuthProvider({ children }) {
     phone2: "", email: "", password: "", type: "", entityType: "",
     grade: "", sector: "", verifyMethod: "nin", nin: "", tin: "", brn: "",
     verified: false, verifiedName: "", products: [], districts: [],
+    // FBR (Foreign Buyer / International Trader) — international identity path
+    country: "", natureOfBusiness: [], passport: "", intlReg: "", intlTin: "",
+    verifyCountry: "", verifiedLabel: "",
     tradeId: "", phase: 1,
   });
 
@@ -59,21 +62,46 @@ export function AuthProvider({ children }) {
     }
   }
 
-  function completeRegistration(tradeId) {
+  function completeRegistration(tradeId, extra = {}) {
+    // Merge any freshly-collected data (passed from the profile-setup step) over
+    // regData so the final account reflects what was just entered, not a stale
+    // snapshot from before the last state update.
+    const reg = { ...regData, ...extra };
+    const isFBR = reg.role === "FBR";
+    // FBR actors hold no Ugandan identity — they are verified via an international
+    // path. Domestic actors verify against NIRA / URA / URSB.
+    const verified = isFBR
+      ? "International"
+      : reg.verifyMethod === "nin" ? "NIRA" : reg.verifyMethod === "tin" ? "URA" : "URSB";
     const updated = {
-      username: regData.username,
-      name: regData.verifiedName || regData.username,
-      role: regData.role,
-      secondaryRoles: regData.secondaryRoles,
-      grade: regData.grade,
+      username: reg.username,
+      name: reg.verifiedName || reg.username,
+      role: reg.role,
+      secondaryRoles: reg.secondaryRoles,
+      grade: reg.grade,
       tradeId,
-      district: regData.districts[0]?.name || "",
-      products: regData.products,
-      type: regData.type,
-      verified: regData.verifyMethod === "nin" ? "NIRA" : regData.verifyMethod === "tin" ? "URA" : "URSB",
-      phone: regData.phone,
-      password: regData.password,
+      district: reg.districts[0]?.name || "",
+      products: reg.products,
+      type: reg.type,
+      verified,
+      // Private detail shown only on the actor's own profile and to admins.
+      verifiedLabel: isFBR ? reg.verifiedLabel : `${verified} Verified`,
+      country: reg.country || "",
+      natureOfBusiness: reg.natureOfBusiness || [],
+      phone: reg.phone,
+      password: reg.password,
       phase: 2,
+      // Foreign actor contact & location details (captured in place of Ugandan regions).
+      ...(isFBR ? {
+        contactPerson: reg.contactPerson || "",
+        contactEmail: reg.contactEmail || "",
+        contactPhone: reg.contactPhone || "",
+        website: reg.website || "",
+        addressLine: reg.addressLine || "",
+        city: reg.city || "",
+        stateProvince: reg.stateProvince || "",
+        postalCode: reg.postalCode || "",
+      } : {}),
     };
     setRegisteredUsers(prev => prev.map(u => u.username === updated.username ? updated : u));
     setUser(updated);

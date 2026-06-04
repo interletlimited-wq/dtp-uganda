@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ShoppingBag, TrendingUp, Search, HelpCircle,
-  Smartphone, Menu, X, ArrowRight, Sprout, ChevronDown
+  Smartphone, Menu, X, ArrowRight, Sprout, ChevronDown, ClipboardList
 } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -21,6 +21,7 @@ export default function PublicNav({ activeRoute = "" }) {
 
   const links = [
     { icon: ShoppingBag, label: "Marketplace",   path: "/marketplace"   },
+    { icon: ClipboardList, label: "Sourcing Board", path: "/sourcing-board" },
     { icon: TrendingUp,  label: "Market Prices", path: "/market-prices" },
     { icon: Sprout,      label: "Seasonal Outlook", path: "/seasonal-outlook" },
     { icon: Search,      label: "Verify Actor",  path: "/verify"        },

@@ -64,6 +64,15 @@ export const ACTOR_TYPES = [
     grades: ["Individual Transporter", "Small Fleet Owner", "Large Fleet Operator"],
   },
   {
+    code: "FBR",
+    name: "Foreign Buyer / International Trader",
+    short: "Foreign Buyer",
+    icon: "Globe",
+    desc: "Non-resident buyer, importer, trading house or distributor sourcing Ugandan goods or selling into the Ugandan market. Verified through an international identity path.",
+    grades: [],
+    foreign: true,
+  },
+  {
     code: "CSM",
     name: "Consumer",
     short: "Consumer",
@@ -71,6 +80,34 @@ export const ACTOR_TYPES = [
     desc: "Buy directly from verified sellers on the marketplace. Get a Consumer ID and shop with confidence.",
     grades: ["Standard Consumer", "Verified Consumer"],
   },
+];
+
+// FBR (Foreign Buyer / International Trader) — nature-of-business sub-types.
+// More than one may be selected. (Spec: Foreign Trade Actor registration.)
+export const FBR_NATURE_OF_BUSINESS = [
+  "Manufacturer",
+  "Processor",
+  "Value-Added Processor (VAP)",
+  "Importer",
+  "Distributor",
+  "Wholesaler",
+  "Retailer",
+  "Trading House",
+  "Buyer / Offtaker",
+  "Exporter selling into Uganda",
+];
+
+// Country selector for FBR country-of-origin / country of issue / registration.
+export const COUNTRIES = [
+  "Algeria", "Angola", "Argentina", "Australia", "Austria", "Bahrain", "Bangladesh",
+  "Belgium", "Brazil", "Burundi", "Canada", "China", "Côte d'Ivoire", "Democratic Republic of the Congo",
+  "Denmark", "Egypt", "Ethiopia", "Finland", "France", "Germany", "Ghana", "Greece", "India",
+  "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Japan", "Jordan", "Kenya", "Kuwait",
+  "Lebanon", "Malaysia", "Mexico", "Morocco", "Netherlands", "New Zealand", "Nigeria", "Norway",
+  "Oman", "Pakistan", "Poland", "Portugal", "Qatar", "Russia", "Rwanda", "Saudi Arabia", "Singapore",
+  "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sudan", "Sweden", "Switzerland",
+  "Tanzania", "Thailand", "Turkey", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
+  "United States", "Vietnam", "Yemen", "Zambia", "Zimbabwe",
 ];
 
 export const ENTITY_TYPES = [
@@ -415,6 +452,52 @@ export const SAMPLE_ACCOUNTS = [
     type: "entity",
     verified: "URA",
     secondaryRoles: ["IMP", "EXP"],
+    password: "password123",
+  },
+  {
+    username: "neumann_gruppe",
+    name: "Neumann Gruppe GmbH",
+    role: "FBR",
+    grade: "",
+    tradeId: "UG-DTP-FBR-00007",
+    district: "",
+    country: "Germany",
+    natureOfBusiness: ["Trading House", "Buyer / Offtaker"],
+    products: ["Coffee (Arabica)", "Coffee (Robusta)"],
+    type: "entity",
+    verified: "International",
+    verifiedLabel: "Business Registration Verified (Germany)",
+    contactPerson: "Hans Müller",
+    contactEmail: "sourcing@neumann-gruppe.com",
+    contactPhone: "+49 40 36123 0",
+    website: "https://www.nkg.com",
+    addressLine: "Am Sandtorkai 48",
+    city: "Hamburg",
+    stateProvince: "Hamburg",
+    postalCode: "20457",
+    password: "password123",
+  },
+  {
+    username: "rahul_sharma",
+    name: "Rahul Sharma",
+    role: "FBR",
+    grade: "",
+    tradeId: "UG-DTP-FBR-00012",
+    district: "",
+    country: "India",
+    natureOfBusiness: ["Importer", "Wholesaler"],
+    products: ["Simsim / Sesame", "Coffee (Robusta)"],
+    type: "individual",
+    verified: "International",
+    verifiedLabel: "Passport Verified (India)",
+    contactPerson: "Rahul Sharma",
+    contactEmail: "rahul@spicetraders.in",
+    contactPhone: "+91 22 4012 3456",
+    website: "https://www.spicetraders.in",
+    addressLine: "Plot 14, Masjid Bunder",
+    city: "Mumbai",
+    stateProvince: "Maharashtra",
+    postalCode: "400009",
     password: "password123",
   },
   {
