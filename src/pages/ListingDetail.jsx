@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import {
-  ArrowLeft, MapPin, Eye, Calendar, Shield, Package,
+  ArrowLeft, MapPin, Eye, Calendar, Package,
   ShoppingCart, MessageSquare, Heart, Share2, ChevronRight,
   CheckCircle, AlertCircle, Truck, User, Star, TrendingUp,
   Clock, Award, ExternalLink
@@ -10,6 +10,7 @@ import { LISTINGS, MARKET_PRICES, formatUGX } from "../data/demo";
 import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import PublicNav from "../components/PublicNav";
+import TrustTick from "../components/TrustTick";
 
 const CATEGORY_IMAGES = {
   "Coffee (Arabica)":    "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&q=80",
@@ -36,15 +37,6 @@ const CATEGORY_IMAGES = {
   "Hides and Skins":     "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=800&q=80",
 };
 const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&q=80";
-
-function VerifiedBadge({ type }) {
-  const colors = { NIRA: "bg-blue-50 text-blue-700 border-blue-200", URSB: "bg-purple-50 text-purple-700 border-purple-200", URA: "bg-green-50 text-green-700 border-green-200" };
-  return (
-    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border ${colors[type] || "bg-warm-bg text-warm-text border-warm-border"}`}>
-      <Shield size={10} /> {type} verified
-    </span>
-  );
-}
 
 function daysLeft(expires) {
   const diff = Math.ceil((new Date(expires) - new Date()) / (1000 * 60 * 60 * 24));
@@ -120,7 +112,7 @@ export default function ListingDetail() {
                   <h1 className="text-xl font-bold text-ink">{listing.product}</h1>
                   <p className="text-warm-muted text-sm mt-0.5">{listing.grade}</p>
                 </div>
-                <VerifiedBadge type={listing.sellerVerified} />
+                <TrustTick seller={listing.seller} size={20} />
               </div>
 
               <div className="flex items-baseline gap-2 mb-1">
@@ -290,12 +282,12 @@ export default function ListingDetail() {
                 {listing.sellerName.charAt(0)}
               </div>
               <div>
-                <div className="font-semibold text-ink text-sm">{listing.sellerName}</div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-semibold text-ink text-sm">{listing.sellerName}</span>
+                  <TrustTick seller={listing.seller} size={16} />
+                </div>
                 <div className="text-warm-muted text-xs font-mono mt-0.5">{listing.sellerTradeId}</div>
               </div>
-            </div>
-            <div className="flex items-center gap-2 mb-4">
-              <VerifiedBadge type={listing.sellerVerified} />
             </div>
             <div className="space-y-2 text-xs text-warm-muted mb-4">
               <div className="flex items-center gap-2"><MapPin size={12} /> {listing.district}, {listing.region} Region</div>

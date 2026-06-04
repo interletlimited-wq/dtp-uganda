@@ -4,6 +4,7 @@ import { Search, Shield, MapPin, TrendingUp, TrendingDown, ChevronDown, ChevronU
 import { LISTINGS, MARKET_PRICES } from "../data/demo";
 import PublicFooter from "../components/PublicFooter";
 import { useAuth } from "../context/AuthContext";
+import TrustTick from "../components/TrustTick";
 
 const REGIONS = ["All regions", "Central", "Eastern", "Western", "Northern"];
 const CATEGORIES = ["All categories", "Cash Crops", "Food Crops", "Livestock", "Fish", "Processed", "Manufacturing", "Other"];
@@ -43,13 +44,6 @@ function ListingCard({ listing, onSignInToBuy }) {
             <div className="font-bold text-ink truncate">{listing.product}</div>
             {listing.grade && <div className="text-xs text-warm-muted">{listing.grade}</div>}
           </div>
-          <div className={`text-[10px] font-bold px-2 py-1 rounded-full border flex items-center gap-1 flex-shrink-0 ml-2 ${
-            listing.sellerVerified === "NIRA" ? "bg-blue-50 text-blue-700 border-blue-200" :
-            listing.sellerVerified === "URSB" ? "bg-indigo-50 text-indigo-700 border-indigo-200" :
-            "bg-green-50 text-green-700 border-green-200"
-          }`}>
-            <Shield size={9} /> {listing.sellerVerified}
-          </div>
         </div>
 
         <div className="flex items-baseline gap-2 mb-3">
@@ -85,7 +79,10 @@ function ListingCard({ listing, onSignInToBuy }) {
             <Shield size={12} className="text-gold" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-xs font-semibold text-ink truncate">{listing.sellerName}</div>
+            <div className="flex items-center gap-1 min-w-0">
+              <span className="text-xs font-semibold text-ink truncate">{listing.sellerName}</span>
+              <TrustTick seller={listing.seller} size={14} className="flex-shrink-0" />
+            </div>
             <div className="text-[10px] font-mono text-warm-muted truncate">{listing.sellerTradeId}</div>
           </div>
         </div>

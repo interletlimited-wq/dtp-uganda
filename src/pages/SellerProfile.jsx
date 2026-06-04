@@ -9,6 +9,7 @@ import { SAMPLE_ACCOUNTS } from "../data/constants";
 import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import PublicNav from "../components/PublicNav";
+import TrustTick from "../components/TrustTick";
 
 const CATEGORY_IMAGES = {
   "Coffee (Arabica)":    "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400&q=80",
@@ -33,15 +34,6 @@ const CATEGORY_IMAGES = {
   "Hides and Skins":     "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400&q=80",
 };
 const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&q=80";
-
-function VerifiedBadge({ type }) {
-  const colors = { NIRA: "bg-blue-50 text-blue-700 border-blue-200", URSB: "bg-purple-50 text-purple-700 border-purple-200", URA: "bg-green-50 text-green-700 border-green-200" };
-  return (
-    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border ${colors[type] || "bg-warm-bg text-warm-text border-warm-border"}`}>
-      <Shield size={10} /> {type} verified
-    </span>
-  );
-}
 
 function ListingCard({ listing, onClick }) {
   const marketPrice = MARKET_PRICES.find(p => p.commodity === listing.product);
@@ -132,7 +124,7 @@ export default function SellerProfile() {
           <div className="flex-1">
             <div className="flex items-center gap-3 flex-wrap mb-1">
               <h1 className="text-white font-bold text-xl">{sample.sellerName}</h1>
-              <VerifiedBadge type={sample.sellerVerified} />
+              <TrustTick seller={sample.seller} size={22} />
             </div>
             <div className="text-white/40 text-sm font-mono mb-2">{sample.sellerTradeId}</div>
             <div className="flex items-center gap-4 text-white/40 text-xs flex-wrap">
@@ -193,8 +185,8 @@ export default function SellerProfile() {
                 <span className="text-xs font-mono font-semibold text-ink">{sample.sellerTradeId}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-warm-muted">Verified by</span>
-                <VerifiedBadge type={sample.sellerVerified} />
+                <span className="text-xs text-warm-muted">Trust tick</span>
+                <TrustTick seller={sample.seller} size={16} withLabel />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-warm-muted">Location</span>

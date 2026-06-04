@@ -3,18 +3,20 @@ import PublicNav from "../components/PublicNav";
 import { useNavigate } from "react-router-dom";
 import { Search, Shield, CheckCircle, XCircle, AlertCircle, MapPin, Package, Store, ArrowRight, User, Building2, Truck, Sprout, Factory, Handshake, Ship, ShoppingCart, PackageOpen, BarChart3 } from "lucide-react";
 import { SAMPLE_ACCOUNTS } from "../data/constants";
-import { STORES, PRODUCTS_DATA } from "../data/demo";
+import { STORES, PRODUCTS_DATA, getSellerRatingCount, getTrustTick } from "../data/demo";
 import PublicFooter from "../components/PublicFooter";
 import { useAuth } from "../context/AuthContext";
+import TrustTick from "../components/TrustTick";
 
 const ROLE_ICONS = { AGR: Sprout, VAP: Factory, MFR: Building2, AGT: Handshake, EXP: Ship, IMP: PackageOpen, BYR: ShoppingCart, TRP: Truck, CSM: User, ADMIN: Shield, GOU: BarChart3 };
 const ROLE_NAMES = { AGR: "Farmer / Agro-producer", VAP: "Value-added Processor", MFR: "Manufacturer", AGT: "Aggregator / Trader", EXP: "Exporter", IMP: "Importer", BYR: "Buyer / Offtaker", TRP: "Transporter", CSM: "Consumer", ADMIN: "Platform Administrator", GOU: "GoU Oversight" };
 const ROLE_COLORS = { AGR: "bg-green-500", VAP: "bg-amber-500", MFR: "bg-blue-500", AGT: "bg-purple-500", EXP: "bg-red-500", IMP: "bg-orange-500", BYR: "bg-teal-500", TRP: "bg-slate-500", CSM: "bg-pink-500", ADMIN: "bg-gray-700", GOU: "bg-indigo-600" };
-const VERIFICATION_COLORS = { NIRA: "bg-blue-50 text-blue-700 border-blue-200", URA: "bg-purple-50 text-purple-700 border-purple-200", URSB: "bg-indigo-50 text-indigo-700 border-indigo-200" };
 
 function ActorProfile({ actor }) {
   const RoleIcon = ROLE_ICONS[actor.role] || User;
   const roleColor = ROLE_COLORS[actor.role] || "bg-gray-500";
+  const ratingCount = getSellerRatingCount(actor.username || actor.tradeId);
+  const trustLevel = getTrustTick(ratingCount);
   const stores = STORES.filter(s => s.owner === actor.username);
   const products = PRODUCTS_DATA.filter(p => p.owner === actor.username);
   const districts = [...new Set([
@@ -46,17 +48,21 @@ function ActorProfile({ actor }) {
               <RoleIcon size={20} className="text-white" />
             </div>
             <div>
-              <div className="text-white font-bold text-lg">{actor.name}</div>
+              <div className="flex items-center gap-2">
+                <span className="text-white font-bold text-lg">{actor.name}</span>
+                <TrustTick ratingCount={ratingCount} size={20} />
+              </div>
               <div className="text-white/50 text-sm">{ROLE_NAMES[actor.role]}</div>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-x-4 gap-y-2 mb-4">
-            {[["Role", actor.role], ["Grade", actor.grade || "-"], ["District", actor.district || "-"], ["Verified by", actor.verified || "-"], ["Status", "Active"], ["Member since", "2026"]].map(([l, v]) => (
+            {[["Role", actor.role], ["Grade", actor.grade || "-"], ["District", actor.district || "-"], ["Status", "Active"], ["Member since", "2026"]].map(([l, v]) => (
               <div key={l}><div className="text-[9px] uppercase tracking-wider text-white/25">{l}</div><div className="text-white text-xs mt-0.5 font-medium">{v}</div></div>
             ))}
           </div>
-          <div className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border ${VERIFICATION_COLORS[actor.verified] || "bg-gold/10 border-gold/25 text-gold"}`}>
-            <Shield size={11} /> {actor.verified} Verified - Active
+          <div className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border ${trustLevel === "green" ? "bg-green-500/10 border-green-400/30 text-green-300" : "bg-white/10 border-white/20 text-white/70"}`}>
+            <TrustTick ratingCount={ratingCount} size={13} />
+            {trustLevel === "green" ? "Trusted Trade Actor" : "Registered Trade Actor"}
           </div>
         </div>
       </div>
@@ -96,9 +102,16 @@ function ActorProfile({ actor }) {
         </div>
       )}
       <div className="bg-white border border-warm-border rounded-xl p-5">
-        <h3 className="font-bold text-ink text-sm mb-3 flex items-center gap-2"><Shield size={15} /> Verification details</h3>
+        <h3 className="font-bold text-ink text-sm mb-3 flex items-center gap-2"><Shield size={15} /> Trust &amp; status</h3>
         <div className="space-y-2">
-          {[["Identity verification", actor.verified ? `${actor.verified} Verified` : "Not verified", !!actor.verified], ["Trade ID status", "Active", true], ["Platform registration", "Complete", true], ["Account standing", "Good standing", true]].map(([l, v, ok]) => (
+          <div className="flex items-center justify-between py-2 border-b border-warm-border">
+            <span className="text-sm text-warm-text">Trust tick</span>
+            <span className="flex items-center gap-1.5 text-xs font-semibold">
+              <TrustTick ratingCount={ratingCount} size={14} />
+              {trustLevel === "green" ? "Green — 100+ verified ratings" : "Gray — building trust rating"}
+            </span>
+          </div>
+          {[["Trade ID status", "Active", true], ["Platform registration", "Complete", true], ["Account standing", "Good standing", true]].map(([l, v, ok]) => (
             <div key={l} className="flex items-center justify-between py-2 border-b border-warm-border last:border-0">
               <span className="text-sm text-warm-text">{l}</span>
               <span className={`flex items-center gap-1.5 text-xs font-semibold ${ok ? "text-green-600" : "text-red-500"}`}>
@@ -107,6 +120,9 @@ function ActorProfile({ actor }) {
             </div>
           ))}
         </div>
+        <p className="text-[11px] text-warm-muted mt-3 leading-relaxed">
+          Identity verification (NIRA / URA / URSB) is held privately and is not shown publicly. The trust tick above is earned from ratings on completed transactions.
+        </p>
       </div>
         <footer className="bg-ink mt-8 px-6 py-6 border-t border-white/10">
           <div className="max-w-3xl mx-auto flex items-center justify-between flex-wrap gap-3">
@@ -159,7 +175,7 @@ export default function VerifyActor() {
           </div>
           <h1 className="text-3xl font-bold text-ink mb-3">Verify a Trade Actor</h1>
           <p className="text-warm-text text-sm max-w-lg mx-auto leading-relaxed">
-            Enter a Trade ID, business name or username to verify that an actor is registered, identity-verified and in good standing on the Uganda Digital Trade Platform.
+            Enter a Trade ID, business name or username to verify that an actor is registered and in good standing on the Uganda Digital Trade Platform.
           </p>
         </div>
 

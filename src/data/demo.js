@@ -380,6 +380,29 @@ export function getActorNotificationsFallbackWithRuntime(username, role) {
   return [...runtime, ...fallback];
 }
 
+// ── A8 / A10 — Trust ticks ───────────────────────────────────────────────
+// Identity verification (NIRA / URA / URSB / International) is PRIVATE: it is
+// shown only on the actor's own profile and to platform admins. The only
+// verification signal the public sees is this rating-based trust tick. A green
+// tick marks an actor with a sufficient number of strong ratings from unique
+// trading partners; everyone else (new actors, or those with few/no ratings)
+// shows a gray tick. See spec sections A8.3 and A10.5.
+export const TRUST_TICK_GREEN_MIN = 100; // unique 4★+ raters needed for green
+
+// Demo helper: a stable, deterministic rating count per actor. There is no live
+// ratings backend yet, so this stands in for "unique raters" until one exists.
+export function getSellerRatingCount(key) {
+  if (!key) return 0;
+  let h = 0;
+  for (const ch of String(key)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return h % 160; // 0–159 → a believable mix of gray and green ticks
+}
+
+// Returns the public trust-tick level for an actor: "green" or "gray".
+export function getTrustTick(ratingCount = 0) {
+  return ratingCount >= TRUST_TICK_GREEN_MIN ? "green" : "gray";
+}
+
 export const BUYER_ROLES = ["BYR", "EXP", "MFR", "AGT", "IMP", "CSM"];
 
 export const ROLE_DEFAULT_CATEGORIES = {

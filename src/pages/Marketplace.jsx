@@ -4,14 +4,15 @@ import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import {
   Search, ShoppingCart, User, MapPin, ChevronDown,
-  ChevronLeft, ChevronRight, Shield, TrendingDown,
+  ChevronLeft, ChevronRight, TrendingDown,
   TrendingUp, X, Check, ArrowRight, Eye, Package,
   Truck, AlertCircle, Clock, Star, Heart, Bell,
   Menu, LogOut, LayoutDashboard, SlidersHorizontal
 } from "lucide-react";
-import { LISTINGS, MARKET_PRICES, formatUGX, getAvailableTransporters } from "../data/demo";
+import { LISTINGS, MARKET_PRICES, formatUGX, getAvailableTransporters, getSellerRatingCount, getTrustTick } from "../data/demo";
 import { REGIONS, SUB_REGIONS } from "../data/geo";
 import { PRODUCTS } from "../data/constants";
+import TrustTick from "../components/TrustTick";
 
 // ── Product Images by category ────────────────────────────────
 const CATEGORY_IMAGES = {
@@ -447,9 +448,6 @@ function ListingCard({ listing, user, onBuy, onAddToCart, wishlist, onToggleWish
       <div className="p-4">
         <div className="flex items-start justify-between mb-1">
           <h3 className="font-semibold text-ink text-sm leading-tight">{listing.product}</h3>
-          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ml-1 flex-shrink-0 ${listing.sellerVerified === "NIRA" ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-indigo-50 text-indigo-700 border-indigo-200"}`}>
-            <Shield size={8} className="inline mr-0.5"/>{listing.sellerVerified}
-          </span>
         </div>
         {listing.grade && <p className="text-xs text-warm-muted mb-2">{listing.grade}</p>}
         <div className="flex items-baseline gap-1 mb-1">
@@ -472,6 +470,7 @@ function ListingCard({ listing, user, onBuy, onAddToCart, wishlist, onToggleWish
         <div className="flex items-center gap-1.5 text-xs text-warm-muted mb-3 pb-3 border-b border-warm-border">
           <div className="w-5 h-5 bg-ink rounded-full flex items-center justify-center text-gold text-[9px] font-bold flex-shrink-0">{listing.sellerName.charAt(0)}</div>
           <span className="truncate">{listing.sellerName}</span>
+          <TrustTick seller={listing.seller} size={13} className="flex-shrink-0" />
         </div>
         {isOwn ? (
           <div className="w-full bg-warm-bg text-warm-muted font-medium py-2 rounded-lg text-xs text-center">Your listing</div>
@@ -721,13 +720,14 @@ function FilterPanel({ filters, setFilters, listings }) {
           </div>
         </div>
 
-        {/* Seller verification */}
+        {/* Trust tick */}
         <div>
-          <label className="block text-[10px] font-bold text-warm-muted uppercase tracking-wider mb-2">Seller verification</label>
-          <div className="grid grid-cols-2 gap-1.5">
-            {[["All","All sellers"],["NIRA","NIRA"],["URSB","URSB"],["URA","URA"]].map(([v,label]) => (
+          <label className="block text-[10px] font-bold text-warm-muted uppercase tracking-wider mb-2">Trust tick</label>
+          <div className="grid grid-cols-3 gap-1.5">
+            {[["All","All",null],["green","Green",100],["gray","Gray",0]].map(([v,label,count]) => (
               <button key={v} onClick={() => setFilters({...filters, verified: v})}
-                className={`px-2 py-1.5 rounded-lg text-xs font-semibold border transition-all ${filters.verified === v ? "bg-ink text-white border-ink" : "bg-white text-warm-text border-warm-border hover:border-ink"}`}>
+                className={`px-2 py-1.5 rounded-lg text-xs font-semibold border transition-all flex items-center justify-center gap-1 ${filters.verified === v ? "bg-ink text-white border-ink" : "bg-white text-warm-text border-warm-border hover:border-ink"}`}>
+                {count !== null && <TrustTick ratingCount={count} size={13} />}
                 {label}
               </button>
             ))}
@@ -919,7 +919,7 @@ export default function Marketplace() {
     .filter(l => !filters.region || l.region === filters.region)
     .filter(l => !filters.category || PRODUCT_CATEGORIES[l.product] === filters.category || Object.keys(PRODUCTS).some(k => k === filters.category))
     .filter(l => !filters.subCategory || l.product === filters.subCategory || l.product.toLowerCase().includes(filters.subCategory.toLowerCase()))
-    .filter(l => filters.verified === "All" || l.sellerVerified === filters.verified)
+    .filter(l => filters.verified === "All" || getTrustTick(getSellerRatingCount(l.seller)) === filters.verified)
     .filter(l => !filters.priceMax || parseInt(l.pricePerUnit) <= parseInt(filters.priceMax))
     .filter(l => !filters.belowMarket || (marketPriceMap[l.product] && parseInt(l.pricePerUnit) < marketPriceMap[l.product]))
     .filter(l => !filters.inStock || parseInt(l.quantity) >= 500)
