@@ -18,6 +18,8 @@ const ROLE_COLORS = {
   CSM: "bg-pink-50 text-pink-700 border-pink-200",
   ADMIN: "bg-gray-50 text-gray-700 border-gray-200",
   GOU: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  NPA: "bg-sky-50 text-sky-700 border-sky-200",
+  MTIC: "bg-violet-50 text-violet-700 border-violet-200",
 };
 
 export default function Login() {
@@ -52,7 +54,9 @@ export default function Login() {
     setLoading(false);
     if (result.success) {
       const acc = result.account;
-      if (!acc.tradeId && acc.role !== "ADMIN" && acc.role !== "GOU") {
+      if (acc.landing) {
+        navigate(acc.landing);
+      } else if (!acc.tradeId && acc.role !== "ADMIN" && acc.role !== "GOU") {
         navigate("/incomplete");
       } else {
         navigate("/dashboard");
@@ -233,23 +237,27 @@ export default function Login() {
                     {SAMPLE_ACCOUNTS.map((acc) => (
                       <button key={acc.username} onClick={() => fillAccount(acc)}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-warm-bg transition-all text-left group">
-                        <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${ROLE_COLORS[acc.role] || ROLE_COLORS.ADMIN}`}>
-                          {acc.role}
+                        <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${ROLE_COLORS[acc.roleLabel || acc.role] || ROLE_COLORS.ADMIN}`}>
+                          {acc.roleLabel || acc.role}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-semibold text-ink truncate">{acc.name}</div>
                           <div className="text-xs text-warm-muted truncate">{acc.username}</div>
                         </div>
-                        {acc.tradeId && (
+                        {acc.tradeId ? (
                           <div className="text-[10px] font-mono text-warm-muted group-hover:text-ink transition-colors flex-shrink-0">
                             {acc.tradeId.split("-").slice(-1)[0]}
                           </div>
-                        )}
+                        ) : acc.password && acc.password !== "password123" ? (
+                          <div className="text-[10px] font-mono text-warm-muted group-hover:text-ink transition-colors flex-shrink-0">
+                            {acc.password}
+                          </div>
+                        ) : null}
                       </button>
                     ))}
                   </div>
                   <div className="border-t border-warm-border px-4 py-3 bg-warm-bg">
-                    <p className="text-xs text-warm-muted">All demo accounts use password: <span className="font-mono font-bold text-ink">password123</span></p>
+                    <p className="text-xs text-warm-muted">Trade actor accounts use password: <span className="font-mono font-bold text-ink">password123</span>. Government and admin accounts show their own password on the right.</p>
                   </div>
                 </div>
               )}

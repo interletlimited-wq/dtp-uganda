@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import LanguageSwitcher from "../LanguageSwitcher";
 import { getActorNotificationsFallbackWithRuntime, markAllRead } from "../../data/demo";
+import { GOV_REPORT_INDEX } from "../../data/governance";
 import {
   LayoutDashboard, BookOpen, ShoppingBag, TrendingUp,
   Link, User, Settings, LogOut, Menu, X, Shield,
@@ -132,9 +133,8 @@ const ROLE_NAV = {
   ],
   GOU: [
     { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-    { icon: BarChart3, label: "Trade Analytics", path: "/analytics" },
+    { icon: FileText, label: "Reports", path: "/government-analytics" },
     { icon: Users, label: "Actor Registry", path: "/registry" },
-    { icon: FileText, label: "Reports", path: "/reports" },
     { icon: TrendingUp, label: "Market Prices", path: "/market-prices" },
   ],
 };
@@ -424,7 +424,19 @@ export default function DashboardLayout({ children }) {
   const [notifOpen, setNotifOpen] = useState(false);
 
   const role = user?.role || "AGR";
-  const navItems = ROLE_NAV[role] || ROLE_NAV.AGR;
+  let navItems = ROLE_NAV[role] || ROLE_NAV.AGR;
+  // GOU analysts get one nav entry per report in their institution's set (A22).
+  if (role === "GOU" && user?.institution && GOV_REPORT_INDEX[user.institution]) {
+    navItems = [
+      { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+      { icon: FileText, label: "Reports", path: "/government-analytics" },
+      ...GOV_REPORT_INDEX[user.institution].map((r) => ({
+        icon: FileText, label: r.navLabel, path: `/government-analytics/${r.id}`, sub: true,
+      })),
+      { icon: Users, label: "Actor Registry", path: "/registry" },
+      { icon: TrendingUp, label: "Market Prices", path: "/market-prices" },
+    ];
+  }
   const RoleIcon = ROLE_ICONS[role] || User;
   const roleColor = ROLE_COLORS[role] || "bg-gray-500";
 
@@ -459,8 +471,10 @@ export default function DashboardLayout({ children }) {
             const active = location.pathname === item.path;
             return (
               <button key={item.path} onClick={() => { navigate(item.path); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${active ? "bg-white/10 text-white" : "text-white/50 hover:text-white hover:bg-white/5"}`}>
-                <item.icon size={16} className="flex-shrink-0" />
+                className={`w-full flex items-center gap-3 rounded-lg font-medium transition-all ${
+                  item.sub ? "pl-9 pr-3 py-2 text-[13px]" : "px-3 py-2.5 text-sm"
+                } ${active ? "bg-white/10 text-white" : `${item.sub ? "text-white/40" : "text-white/50"} hover:text-white hover:bg-white/5`}`}>
+                <item.icon size={item.sub ? 14 : 16} className="flex-shrink-0" />
                 {item.label}
               </button>
             );

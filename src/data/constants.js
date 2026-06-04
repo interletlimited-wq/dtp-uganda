@@ -429,9 +429,21 @@ export const SAMPLE_ACCOUNTS = [
     username: "mtic_analyst",
     name: "MTIC Trade Analyst",
     role: "GOU",
+    roleLabel: "MTIC",
+    institution: "MTIC",
     tradeId: null,
     type: "system",
     password: "mtic2026",
+  },
+  {
+    username: "npa_analyst",
+    name: "NPA Planning Analyst",
+    role: "GOU",
+    roleLabel: "NPA",
+    institution: "NPA",
+    tradeId: null,
+    type: "system",
+    password: "npa2026",
   },
 ];
 

@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../components/layout/DashboardLayout";
+import { getGovernmentAnalytics } from "../data/governance";
 import {
   TrendingUp, TrendingDown, ArrowRight, Shield, Check,
   AlertCircle, Clock, Package, Truck, Star, Bell,
@@ -931,20 +933,87 @@ function ADMINDashboard({ user }) {
 
 // ─── GOU Dashboard ────────────────────────────────────────────
 
+// Priority-ordered key reports for the analyst's institution (spec A22).
+// Pulls from the same seam as the Reports page; full detail/downloads live there.
+function GovReportHighlights({ institution }) {
+  const navigate = useNavigate();
+  const [reports, setReports] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    getGovernmentAnalytics().then((d) => {
+      if (!active) return;
+      const set = institution === "MTIC" ? d.mtic : d.npa;
+      setReports([...set.reports].sort((a, b) => (a.priority || 99) - (b.priority || 99)));
+    });
+    return () => { active = false; };
+  }, [institution]);
+
+  return (
+    <div className="bg-white border border-warm-border rounded-xl p-5 mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <SectionHeader title={`${institution} key reports — priority order`} />
+        <button onClick={() => navigate("/government-analytics")}
+          className="text-gold text-xs font-semibold flex items-center gap-1 hover:gap-2 transition-all whitespace-nowrap">
+          Open full reports <ChevronRight size={12} />
+        </button>
+      </div>
+      {!reports ? (
+        <div className="text-sm text-warm-muted py-6 text-center">Loading reports…</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {reports.map((r, i) => {
+            const top = r.stats?.[0];
+            return (
+              <button key={r.id} onClick={() => navigate(`/government-analytics/${r.id}`)}
+                className="text-left bg-warm-bg border border-warm-border rounded-xl p-3.5 hover:border-gold transition-all group">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-5 h-5 rounded-md bg-ink text-gold text-[10px] font-bold flex items-center justify-center flex-shrink-0">{r.priority || i + 1}</span>
+                  <span className="text-xs font-bold text-ink leading-tight">{r.title}</span>
+                </div>
+                {top && (
+                  <div className="mb-1">
+                    <span className="text-lg font-bold text-ink">{top.value}</span>{" "}
+                    <span className="text-[10px] text-warm-muted">{top.label}</span>
+                  </div>
+                )}
+                {r.insights?.[0] && <p className="text-[11px] text-warm-text leading-snug">{r.insights[0]}</p>}
+                <span className="text-gold text-[10px] font-semibold flex items-center gap-1 mt-2 group-hover:gap-1.5 transition-all">
+                  View report <ArrowRight size={10} />
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function GOUDashboard({ user }) {
   const stats = GOV_STATS;
+  const institution = user?.institution || "MTIC";
+  const HEAD = {
+    NPA: { title: "National Planning Authority — Planning Dashboard", sub: "NDP IV monitoring & evaluation · Results & Resources Framework" },
+    MTIC: { title: "Ministry of Trade, Industry & Cooperatives — Trade Dashboard", sub: "Trade formalisation, value addition and cooperatives oversight" },
+  };
+  const head = HEAD[institution] || HEAD.MTIC;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-ink">Uganda Digital Trade Platform - National Analytics</h1>
-          <p className="text-sm text-warm-text">Ministry of ICT and National Guidance - Trade Oversight Dashboard</p>
+          <h1 className="text-xl font-bold text-ink">{head.title}</h1>
+          <p className="text-sm text-warm-text">{head.sub}</p>
         </div>
         <div className="text-xs text-warm-muted px-3 py-2 bg-warm-bg border border-warm-border rounded-xl">
           Data as of {new Date().toLocaleDateString("en-UG")}
         </div>
       </div>
+
+      {/* Institution report set — priority order (A22), in addition to national stats */}
+      <GovReportHighlights institution={institution} />
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <StatCard label="Registered trade actors" value={formatNumber(stats.totalActors)} trend={14.2} icon={Users} color="bg-blue-50" iconColor="text-blue-600" sub="Active Trade IDs issued" />
         <StatCard label="Total transaction value" value={formatUGX(stats.totalTransactionValue)} trend={22.8} icon={TrendingUp} color="bg-green-50" iconColor="text-green-600" sub="Recorded on platform" />

@@ -27,6 +27,8 @@ import SeasonalOutlook from "./pages/SeasonalOutlook";
 import VerifyActor from "./pages/VerifyActor";
 import ProfileSetup from "./pages/ProfileSetup";
 import Incomplete from "./pages/Incomplete";
+import GovernmentAnalytics from "./pages/GovernmentAnalytics";
+import GovernmentReport from "./pages/GovernmentReport";
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
@@ -74,6 +76,8 @@ export default function App() {
       <Route path="/jobs" element={<CompleteRoute><ComingSoon title="Active Jobs" /></CompleteRoute>} />
       <Route path="/market-prices" element={<MarketPrices />} />
       <Route path="/seasonal-outlook" element={<SeasonalOutlook />} />
+      <Route path="/government-analytics" element={<GovernmentAnalytics />} />
+      <Route path="/government-analytics/:reportId" element={<GovernmentReport />} />
       <Route path="/verify" element={<VerifyActor />} />
       <Route path="/help" element={<HelpPage />} />
       <Route path="/marketplace" element={<Marketplace />} />
