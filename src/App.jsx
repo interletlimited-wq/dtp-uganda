@@ -1,6 +1,8 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import Landing from "./pages/Landing";
+import Features from "./pages/Features";
+import WalletInfo from "./pages/WalletInfo";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Minting from "./pages/Minting";
@@ -31,6 +33,8 @@ import GovernmentAnalytics from "./pages/GovernmentAnalytics";
 import GovernmentReport from "./pages/GovernmentReport";
 import SourcingBoard from "./pages/SourcingBoard";
 import MySupplyRequests from "./pages/MySupplyRequests";
+import Expenses from "./pages/Expenses";
+import Stock from "./pages/Stock";
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
@@ -56,6 +60,8 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
+      <Route path="/features" element={<Features />} />
+      <Route path="/wallet-info" element={<WalletInfo />} />
       <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
       <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
       <Route path="/minting" element={<PrivateRoute><Minting /></PrivateRoute>} />
@@ -80,8 +86,18 @@ export default function App() {
       <Route path="/seasonal-outlook" element={<SeasonalOutlook />} />
       <Route path="/government-analytics" element={<GovernmentAnalytics />} />
       <Route path="/government-analytics/:reportId" element={<GovernmentReport />} />
+      <Route path="/markets" element={<CompleteRoute><ComingSoon title="Markets" description="Manage government markets - register and maintain the markets the ministry oversees." /></CompleteRoute>} />
+      <Route path="/markets/stalls" element={<CompleteRoute><ComingSoon title="Stalls" description="Configure stalls within each market - layout, numbering and stall attributes." /></CompleteRoute>} />
+      <Route path="/markets/renters" element={<CompleteRoute><ComingSoon title="Stall Owners & Renters" description="Assign and rent out stalls - track owners, renters and tenancy." /></CompleteRoute>} />
       <Route path="/sourcing-board" element={<SourcingBoard />} />
       <Route path="/sourcing-board/mine" element={<PrivateRoute><MySupplyRequests /></PrivateRoute>} />
+      <Route path="/expenses" element={<PrivateRoute><Expenses /></PrivateRoute>} />
+      <Route path="/stock" element={<PrivateRoute><Stock section="inventory" /></PrivateRoute>} />
+      <Route path="/stock/stores" element={<PrivateRoute><Stock section="stores" /></PrivateRoute>} />
+      <Route path="/stock/sell" element={<PrivateRoute><Stock section="sell" /></PrivateRoute>} />
+      <Route path="/stock/debts" element={<PrivateRoute><Stock section="debts" /></PrivateRoute>} />
+      <Route path="/stock/finance" element={<PrivateRoute><Stock section="finance" /></PrivateRoute>} />
+      <Route path="/stock/reports" element={<PrivateRoute><Stock section="reports" /></PrivateRoute>} />
       <Route path="/verify" element={<VerifyActor />} />
       <Route path="/help" element={<HelpPage />} />
       <Route path="/marketplace" element={<Marketplace />} />

@@ -10,7 +10,7 @@ import { REGIONS } from "../data/geo";
 
 // ── Delivery modes ────────────────────────────────────────────
 const DELIVERY_MODES = [
-  { id: "road",       label: "Road",       icon: Truck,  desc: "Truck, lorry, pickup — nationwide" },
+  { id: "road",       label: "Road",       icon: Truck,  desc: "Truck, lorry, pickup - nationwide" },
   { id: "air",        label: "Air",        icon: Plane,  desc: "Domestic or international cargo flight" },
   { id: "water",      label: "Water",      icon: Ship,   desc: "Lake Victoria ferry, river barge" },
   { id: "rail",       label: "Rail",       icon: Train,  desc: "SGR freight or Uganda Railways" },
@@ -226,7 +226,7 @@ export default function DeliveryTermsModal({ request, onConfirm, onClose }) {
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto p-6">
 
-          {/* Step 1 — Delivery mode */}
+          {/* Step 1 - Delivery mode */}
           {step === 1 && (
             <div className="space-y-3">
               <h3 className="font-bold text-ink text-sm mb-4">How should the goods be transported?</h3>
@@ -251,7 +251,7 @@ export default function DeliveryTermsModal({ request, onConfirm, onClose }) {
             </div>
           )}
 
-          {/* Step 2 — Who arranges */}
+          {/* Step 2 - Who arranges */}
           {step === 2 && (
             <div className="space-y-3">
               <h3 className="font-bold text-ink text-sm mb-4">Who arranges the transport?</h3>
@@ -279,7 +279,7 @@ export default function DeliveryTermsModal({ request, onConfirm, onClose }) {
             </div>
           )}
 
-          {/* Step 3 — Details */}
+          {/* Step 3 - Details */}
           {step === 3 && (
             <div className="space-y-5">
               <h3 className="font-bold text-ink text-sm">Collection and delivery details</h3>
@@ -319,7 +319,7 @@ export default function DeliveryTermsModal({ request, onConfirm, onClose }) {
                 </div>
               </div>
 
-              {/* Buyer arranges — vehicle details */}
+              {/* Buyer arranges - vehicle details */}
               {arrangeBy === "buyer" && (
                 <div className="border border-warm-border rounded-xl p-4 space-y-3">
                   <div className="font-semibold text-ink text-sm mb-2">Your vehicle / carrier details</div>
@@ -368,7 +368,7 @@ export default function DeliveryTermsModal({ request, onConfirm, onClose }) {
             </div>
           )}
 
-          {/* Step 4 — Confirm */}
+          {/* Step 4 - Confirm */}
           {step === 4 && (
             <div className="space-y-4">
               <h3 className="font-bold text-ink text-sm mb-4">Review and confirm delivery terms</h3>

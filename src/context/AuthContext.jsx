@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
     phone2: "", email: "", password: "", type: "", entityType: "",
     grade: "", sector: "", verifyMethod: "nin", nin: "", tin: "", brn: "",
     verified: false, verifiedName: "", products: [], districts: [],
-    // FBR (Foreign Buyer / International Trader) — international identity path
+    // FBR (Foreign Buyer / International Trader) - international identity path
     country: "", natureOfBusiness: [], passport: "", intlReg: "", intlTin: "",
     verifyCountry: "", verifiedLabel: "",
     tradeId: "", phase: 1,
@@ -68,7 +68,7 @@ export function AuthProvider({ children }) {
     // snapshot from before the last state update.
     const reg = { ...regData, ...extra };
     const isFBR = reg.role === "FBR";
-    // FBR actors hold no Ugandan identity — they are verified via an international
+    // FBR actors hold no Ugandan identity - they are verified via an international
     // path. Domestic actors verify against NIRA / URA / URSB.
     const verified = isFBR
       ? "International"

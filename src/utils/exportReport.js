@@ -1,4 +1,4 @@
-// Deep-download exporters for a government report panel (spec A22 — deep reports
+// Deep-download exporters for a government report panel (spec A22 - deep reports
 // downloadable in CSV, Excel and PDF). Each report carries title, description,
 // alignment, stats[], insights[], detail{columns, rows} and an optional note.
 import * as XLSX from "xlsx";

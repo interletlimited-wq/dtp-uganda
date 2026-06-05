@@ -4,12 +4,12 @@ import { useAuth } from "../context/AuthContext";
 import {
   ArrowRight, ArrowLeft, Check, X, ChevronDown, LogOut,
   Sprout, Factory, Building2, Handshake, Ship, PackageOpen,
-  ShoppingCart, Truck, Globe, User as UserIcon
+  ShoppingCart, Truck, Globe, Store, User as UserIcon
 } from "lucide-react";
 
 const LUCIDE_ICONS = {
   Sprout, Factory, Building2, Handshake, Ship, PackageOpen,
-  ShoppingCart, Truck, Globe, User: UserIcon,
+  ShoppingCart, Truck, Globe, Store, User: UserIcon,
 };
 
 function RoleIcon({ name, size = 16, className = "" }) {
@@ -174,7 +174,7 @@ function Step1({ data, onChange, role }) {
   );
 }
 
-// FBR international identity path — passport (individual) or business registration (entity).
+// FBR international identity path - passport (individual) or business registration (entity).
 function Step2FBR({ data, onChange }) {
   const [verifying, setVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState("");
@@ -206,7 +206,7 @@ function Step2FBR({ data, onChange }) {
   return (
     <div className="space-y-5">
       <div className="bg-gold-light border border-gold-border rounded-xl p-3 text-xs text-gold-dark leading-relaxed">
-        Foreign actors hold no Ugandan identity, so you are verified through an international identity path — not NIRA, URA or URSB. This detail stays private to you and platform admins; the public sees only your rating-based trust tick.
+        Foreign actors hold no Ugandan identity, so you are verified through an international identity path - not NIRA, URA or URSB. This detail stays private to you and platform admins; the public sees only your rating-based trust tick.
       </div>
 
       <div>
@@ -449,7 +449,7 @@ function Step3({ data, onChange }) {
   );
 }
 
-// FBR contact information & location (address) — replaces the Ugandan regions step.
+// FBR contact information & location (address) - replaces the Ugandan regions step.
 function Step4FBR({ data, onChange }) {
   const field = (key, label, opts = {}) => (
     <div>
@@ -493,7 +493,7 @@ function Step4FBR({ data, onChange }) {
             <div>
               <label className="block text-xs font-semibold text-warm-text uppercase tracking-wider mb-1.5">Country</label>
               <div className="w-full px-3 py-2.5 border border-warm-border rounded-lg text-sm text-warm-text bg-warm-bg">
-                {data.country || "—"}
+                {data.country || "-"}
               </div>
             </div>
           </div>

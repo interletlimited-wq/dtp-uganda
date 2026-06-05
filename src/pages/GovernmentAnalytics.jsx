@@ -11,7 +11,7 @@ const TABS = [
   { id: "mtic", label: "MTIC / Trade & Industry", icon: Building2 },
 ];
 
-// One navigable entry per report — opens that report's own page.
+// One navigable entry per report - opens that report's own page.
 function ReportLinkCard({ report, index, onOpen }) {
   const top = report.stats?.[0];
   return (
@@ -86,7 +86,7 @@ export default function GovernmentAnalytics() {
         </div>
       </div>
 
-      {/* Tabs — only for public (logged-out) view; analysts are scoped to their set */}
+      {/* Tabs - only for public (logged-out) view; analysts are scoped to their set */}
       {!scoped && (
         <div className="border-b border-warm-border mb-6 flex gap-1">
           {TABS.map((t) => (
@@ -122,7 +122,7 @@ export default function GovernmentAnalytics() {
 
           <h2 className="font-bold text-sm uppercase tracking-wider text-warm-muted mb-3">
             {activeInst} Report Set{" "}
-            <span className="text-warm-muted/70 font-normal normal-case">· {activeSet.reports.length} independent reports — open each for detail &amp; downloads</span>
+            <span className="text-warm-muted/70 font-normal normal-case">· {activeSet.reports.length} independent reports - open each for detail &amp; downloads</span>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...activeSet.reports]

@@ -186,7 +186,7 @@ function RequestCard({ req, expanded, onToggle, onAccept, onDecline, onCounter }
               <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-4">
                 <CheckCircle size={20} className="text-green-500 flex-shrink-0" />
                 <div>
-                  <div className="text-sm font-bold text-green-700">Request accepted — order created</div>
+                  <div className="text-sm font-bold text-green-700">Request accepted - order created</div>
                   <div className="text-xs text-green-600">The buyer has been notified. Awaiting payment confirmation.</div>
                 </div>
               </div>
@@ -257,7 +257,7 @@ export default function IncomingRequestsPage() {
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold text-ink">Incoming Requests</h1>
+              <h1 className="text-xl font-bold text-ink">Incoming Purchase Requests</h1>
               {pending > 0 && (
                 <span className="text-xs font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full">
                   {pending} pending
@@ -271,6 +271,13 @@ export default function IncomingRequestsPage() {
             </div>
             <p className="text-sm text-warm-muted mt-0.5">{requests.length} total requests on your listings</p>
           </div>
+        </div>
+        <div className="mt-3 flex items-start gap-2 text-xs text-warm-text bg-warm-bg border border-warm-border rounded-lg px-3 py-2">
+          <AlertCircle size={14} className="text-gold-dark flex-shrink-0 mt-0.5" />
+          <span>
+            These are buyers asking to purchase <strong>your marketplace listings</strong> (supply-led). To browse open sourcing requests you can respond to with an offer, use the{" "}
+            <button onClick={() => navigate("/sourcing-board")} className="text-gold font-semibold hover:underline">Sourcing Board</button>. Both channels create orders in the same purchase flow.
+          </span>
         </div>
       </div>
 

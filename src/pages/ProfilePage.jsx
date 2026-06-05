@@ -13,8 +13,9 @@ const ACTOR_TYPE_NAMES = {
   AGR: "Farmer / Agro-producer", VAP: "Value-added Processor",
   MFR: "Manufacturer", AGT: "Aggregator / Trader",
   EXP: "Exporter", IMP: "Importer", BYR: "Buyer / Offtaker",
-  TRP: "Transporter", CSM: "Consumer", ADMIN: "Platform Administrator",
-  GOU: "GoU Oversight (MTIC)", FBR: "Foreign Buyer / International Trader"
+  TRP: "Transporter", CSM: "Retail Consumer", ADMIN: "Platform Administrator",
+  GOU: "GoU Oversight (MTIC)", FBR: "Foreign Buyer / International Trader",
+  WHS: "Wholesaler"
 };
 
 const VERIFICATION_COLORS = {

@@ -34,7 +34,7 @@ function TraceabilityBadge({ status }) {
 
 function BatchCard({ batch, eudrDocs, role, expanded, onToggle }) {
   const eudrDoc = eudrDocs.find(d => d.batchId === batch.id);
-  const convRatio = batch.conversionRatio || "—";
+  const convRatio = batch.conversionRatio || "-";
   const isExport = batch.type === "export";
 
   return (
@@ -124,7 +124,7 @@ function BatchCard({ batch, eudrDocs, role, expanded, onToggle }) {
           {batch.sourceActors && (
             <div>
               <div className="text-xs font-bold text-warm-muted uppercase tracking-wider mb-2">
-                Source actors ({batch.sourceActors.length} — {batch.traceability === "full" ? "all verified" : "partially verified"})
+                Source actors ({batch.sourceActors.length} - {batch.traceability === "full" ? "all verified" : "partially verified"})
               </div>
               <div className="flex flex-wrap gap-2">
                 {batch.sourceActors.map(id => (

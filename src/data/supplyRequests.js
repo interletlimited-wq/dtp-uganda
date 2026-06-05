@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────
-// A16 — Supply Requests & Sourcing Board · data seam (async, demo-backed).
+// A16 - Supply Requests & Sourcing Board · data seam (async, demo-backed).
 //
 // Demand-led counterpart to the marketplace: buyers post what they want to
 // source, registered suppliers respond with offers, the buyer accepts/counters,
@@ -20,10 +20,9 @@ export const TRANSPORT_TERMS = ["Collection by buyer", "Delivery to buyer's site
 export const CUSTOMS_OPTIONS = ["Not applicable (domestic)", "Buyer handles export & import", "Seller handles export, buyer handles import", "Shared / as agreed"];
 export const CERTIFICATION_OPTIONS = ["UNBS certified", "Organic", "EUDR-compliant origin", "Fairtrade", "GlobalG.A.P."];
 
-// Who can post (task: buyer-capable + retail consumers) and who can respond.
-export const POSTER_ROLES = ["BYR", "AGT", "MFR", "VAP", "EXP", "IMP", "FBR", "CSM"];
+// Posting a supply request is OPEN to any registered actor (left open for now).
 export const RESPONDER_ROLES = ["AGR", "VAP", "MFR", "AGT", "EXP"];
-export const canPost = (role) => POSTER_ROLES.includes(role);
+export const canPost = () => true;
 export const canRespond = (role) => RESPONDER_ROLES.includes(role);
 
 export const STATUS_LABELS = {
@@ -56,7 +55,8 @@ function withBuyer(req) {
 }
 
 function offer(o) {
-  return { status: "submitted", counters: [], certifications: [], ...o };
+  const a = actorOf(o.seller);
+  return { status: "submitted", counters: [], certifications: [], sellerName: a.name || o.seller, sellerTradeId: a.tradeId || "", ...o };
 }
 
 // ── seed data ──────────────────────────────────────────────────────────────
@@ -174,7 +174,12 @@ const wait = (v, ms = 250) => new Promise((res) => setTimeout(() => res(v), ms))
 
 // ── reads ────────────────────────────────────────────────────────────────
 export async function getSupplyRequests(filters = {}) {
-  let list = _requests.filter((r) => (filters.visibility ? r.visibility === filters.visibility : true));
+  // The open board shows only published, still-open requests.
+  let list = _requests.filter((r) =>
+    (filters.visibility ? r.visibility === filters.visibility : true) &&
+    r.published !== false &&
+    !["closed", "expired"].includes(r.status)
+  );
   const f = filters;
   if (f.commodity) list = list.filter((r) => r.commodity === f.commodity);
   if (f.region) list = list.filter((r) => r.region === f.region);
@@ -301,6 +306,30 @@ export async function acceptOffer(reqId, offerId, user) {
   pushNotification(o.seller, { type: "order", message: `Your offer ${offerId} was accepted. Order ${orderId} created and is now at Step 3 (Quotation confirmed).` });
   pushNotification(req.buyer, { type: "order", message: `You accepted offer ${offerId} on ${reqId}. Order ${orderId} created in your purchase flow (Step 3).` });
   return wait({ order: clone(order), request: clone(req) });
+}
+
+// Edit a request the buyer owns (only safe fields; offers/buyer untouched).
+export async function updateSupplyRequest(id, changes) {
+  const req = _requests.find((r) => r.id === id);
+  if (!req) return wait(null);
+  const editable = [
+    "commodity", "quantity", "unit", "recurrence", "grade", "certifications", "packaging",
+    "targetPrice", "deliveryDistrict", "deliveryWindow", "deliveryMode", "transportTerms",
+    "customs", "paymentMethods", "description", "visibility",
+    "deliveryStore", "deliveryAddress", "deliveryCity", "deliveryCountry",
+  ];
+  editable.forEach((k) => { if (k in changes) req[k] = changes[k]; });
+  req.region = regionForDistrict(req.deliveryDistrict) || req.region || "";
+  return wait(clone(req));
+}
+
+// Deactivate/unpublish (hide from the open board) or reactivate a request.
+export async function setRequestActive(id, active) {
+  const req = _requests.find((r) => r.id === id);
+  if (!req) return wait(null);
+  if (active) { req.published = true; recomputeStatus(req); }
+  else { req.published = false; req.status = "closed"; }
+  return wait(clone(req));
 }
 
 export async function getOrdersFromSourcing(username) {

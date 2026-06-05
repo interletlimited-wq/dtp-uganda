@@ -2,7 +2,7 @@ import { BadgeCheck } from "lucide-react";
 import { getTrustTick, getSellerRatingCount } from "../data/demo";
 
 /**
- * Public trust tick (A8 / A10) — the ONLY verification signal shown to the
+ * Public trust tick (A8 / A10) - the ONLY verification signal shown to the
  * public. Identity verification (NIRA / URA / URSB / International) is private
  * and must never appear on public profiles or listings.
  *
@@ -25,8 +25,8 @@ export default function TrustTick({
 
   const color = isGreen ? "text-green-500" : "text-gray-400";
   const tip = isGreen
-    ? "Green trust tick — rated 4★ or above by 100+ verified trading partners"
-    : "Gray trust tick — trust rating earned from verified transactions";
+    ? "Green trust tick - rated 4★ or above by 100+ verified trading partners"
+    : "Gray trust tick - trust rating earned from verified transactions";
   const labelText = isGreen ? "Trusted seller" : "Trust rating";
 
   return (

@@ -49,7 +49,7 @@ const CATEGORY_COLORS = {
 };
 
 function fmtK(n) {
-  if (!n && n !== 0) return "—";
+  if (!n && n !== 0) return "-";
   if (n >= 1000000) return (n/1000000).toFixed(1) + "M";
   if (n >= 1000)    return (n/1000).toFixed(0) + "K";
   return n.toLocaleString();
@@ -314,7 +314,7 @@ export default function MarketPrices() {
           <div className="relative flex-1 min-w-64">
             <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-warm-muted" />
             <input value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Search any commodity — coffee, maize, vanilla, fish..."
+              placeholder="Search any commodity - coffee, maize, vanilla, fish..."
               className="w-full pl-11 pr-4 py-3 border-2 border-warm-border rounded-xl text-sm text-ink bg-white outline-none focus:border-gold transition-colors font-medium" />
             {search && <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-warm-muted hover:text-ink"><X size={14} /></button>}
           </div>
@@ -399,10 +399,10 @@ export default function MarketPrices() {
           <div className="col-span-2">
             <div className="text-[9px] font-bold text-ink/70 uppercase tracking-wider mb-2">Price signals</div>
             <div className="space-y-1.5 text-xs text-ink/75 leading-relaxed">
-              <p>• <span className="text-ink font-semibold">Vanilla</span> up 8.3% — peak export season driving EU buyer demand.</p>
-              <p>• <span className="text-ink font-semibold">Maize</span> down 2.1% — post-harvest pressure in Northern region.</p>
-              <p>• <span className="text-ink font-semibold">Nile Perch</span> up 6.2% — strong export orders from EU processors.</p>
-              <p>• <span className="text-ink font-semibold">Tomatoes</span> down 5.3% — seasonal glut from Central region.</p>
+              <p>• <span className="text-ink font-semibold">Vanilla</span> up 8.3% - peak export season driving EU buyer demand.</p>
+              <p>• <span className="text-ink font-semibold">Maize</span> down 2.1% - post-harvest pressure in Northern region.</p>
+              <p>• <span className="text-ink font-semibold">Nile Perch</span> up 6.2% - strong export orders from EU processors.</p>
+              <p>• <span className="text-ink font-semibold">Tomatoes</span> down 5.3% - seasonal glut from Central region.</p>
             </div>
           </div>
         </div>
@@ -410,7 +410,7 @@ export default function MarketPrices() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* ── LEFT — price cards grid ── */}
+        {/* ── LEFT - price cards grid ── */}
         <div className="lg:col-span-2">
           {/* Count */}
           <div className="text-xs text-warm-muted mb-3">{filtered.length} commodities</div>
@@ -438,7 +438,7 @@ export default function MarketPrices() {
           )}
         </div>
 
-        {/* ── RIGHT — detail panel ── */}
+        {/* ── RIGHT - detail panel ── */}
         <div className="space-y-4 lg:sticky lg:top-20 lg:self-start">
           {selected && (() => {
             const cat = COMMODITY_CATEGORIES[selected.commodity] || "Other";

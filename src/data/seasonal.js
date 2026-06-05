@@ -1,12 +1,12 @@
 import { PRICE_HISTORY } from "./demo";
 
 /**
- * Seasonal Outlook — data seam
+ * Seasonal Outlook - data seam
  * ----------------------------
  * The page depends ONLY on getSeasonalOutlook(). Today it computes the outlook
  * locally from Uganda's harvest calendar (a credible agronomic prior) and uses
  * PRICE_HISTORY only for the current price anchor. When the backend + database
- * land, replace the body of getSeasonalOutlook with a fetch — the returned
+ * land, replace the body of getSeasonalOutlook with a fetch - the returned
  * contract stays identical, so the page never changes.
  *
  *   Phase 2:  return fetch(`/api/seasonal-outlook/${encodeURIComponent(name)}`)
@@ -22,8 +22,8 @@ export const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oc
 
 /**
  * Uganda cropping seasonality. Months are 0-indexed (Jan = 0).
- * harvest = main supply months (prices soften — glut)
- * lean    = scarcity months (prices firm — lean season)
+ * harvest = main supply months (prices soften - glut)
+ * lean    = scarcity months (prices firm - lean season)
  * Grounded in Uganda's bimodal calendar (two rain seasons in most regions;
  * unimodal north). Sources: UCDA, MAAIF crop calendars, FEWS NET seasonal
  * monitors. Refined by real observed series once the database is in place.
@@ -37,7 +37,7 @@ export const SEASONAL_CALENDAR = {
     note: "Robusta main crop Nov–Feb (central, western, Masaka). Procurement cheapest at harvest; lean-season firming April–June." },
   "Maize": { chain: "Food Crops", unit: "kg", amplitude: 0.30,
     harvest: [6, 7, 11, 0], lean: [2, 3, 4, 8, 9],
-    note: "Bimodal: first-season harvest Jul–Aug, second-season Dec–Jan. Two annual price troughs at harvest, two lean spikes — strongest procurement signal of any staple." },
+    note: "Bimodal: first-season harvest Jul–Aug, second-season Dec–Jan. Two annual price troughs at harvest, two lean spikes - strongest procurement signal of any staple." },
   "Beans (Common)": { chain: "Food Crops", unit: "kg", amplitude: 0.24,
     harvest: [5, 6, 11, 0], lean: [2, 3, 8, 9],
     note: "Bimodal harvests Jun–Jul and Dec–Jan. Reliable lean-season firming; storable, so buffer-stocking at harvest pays." },
@@ -77,7 +77,7 @@ function seasonalCurve(cal) {
 function confidenceFor(cal) {
   const amp = cal.amplitude ?? 0.15;
   const pct = Math.round(55 + amp * 130);
-  return Math.min(88, Math.max(60, pct)); // bounded 60–88% — never overclaim
+  return Math.min(88, Math.max(60, pct)); // bounded 60–88% - never overclaim
 }
 
 function currentPriceFor(name) {
@@ -91,7 +91,7 @@ function fmtMonths(idxs) {
 }
 
 /**
- * The seam. ASYNC by design so the page already handles loading — swapping in
+ * The seam. ASYNC by design so the page already handles loading - swapping in
  * a real fetch() later requires zero UI changes.
  */
 export async function getSeasonalOutlook(name) {
@@ -116,7 +116,7 @@ export async function getSeasonalOutlook(name) {
   const direction = nextQAvg > base * 1.03 ? "rising" : nextQAvg < base * 0.97 ? "falling" : "stable";
 
   const recommendation = direction === "falling"
-    ? `Supply is entering a harvest window. ${name} is likely to be cheapest to procure over the next quarter — favourable timing for processors and exporters to buy and build buffer stock ahead of the lean season.`
+    ? `Supply is entering a harvest window. ${name} is likely to be cheapest to procure over the next quarter - favourable timing for processors and exporters to buy and build buffer stock ahead of the lean season.`
     : direction === "rising"
     ? `${name} is heading into a lean window with firming prices. Producers and aggregators holding stock are positioned to sell into strength; buyers should secure volumes early before the seasonal peak.`
     : `${name} prices look broadly stable over the next quarter. Steady, staggered procurement is reasonable; watch the ${fmtMonths([troughIdx])} harvest trough for the best entry.`;

@@ -8,7 +8,7 @@ const GOLD = "#F7B90F";
 const INK = "#292929";
 
 function MiniCurve({ data }) {
-  // data: [{ price, phase }]  — simple inline SVG line with phase shading
+  // data: [{ price, phase }]  - simple inline SVG line with phase shading
   const w = 640, h = 160, pad = 28;
   const prices = data.map(d => d.price);
   const min = Math.min(...prices), max = Math.max(...prices);
@@ -91,7 +91,7 @@ export default function SeasonalOutlook() {
             Seasonal Price Intelligence for Uganda's Agro-Industrial Value Chains
           </h1>
           <p className="text-white/55 text-sm leading-relaxed max-w-2xl mt-3">
-            When to procure, when to build buffer stock, and when the export window opens — outlooks
+            When to procure, when to build buffer stock, and when the export window opens - outlooks
             built on Uganda's harvest seasonality, for processors, aggregators, and exporters.
           </p>
         </div>
@@ -119,7 +119,7 @@ export default function SeasonalOutlook() {
             <div className="text-warm-muted text-sm py-20 text-center">Loading seasonal outlook…</div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* left — curve */}
+              {/* left - curve */}
               <div className="lg:col-span-2 bg-white rounded-xl border border-warm-border p-6">
                 <div className="flex items-start justify-between mb-1">
                   <div>
@@ -143,7 +143,7 @@ export default function SeasonalOutlook() {
                 </div>
               </div>
 
-              {/* right — facts + recommendation */}
+              {/* right - facts + recommendation */}
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-white rounded-xl border border-warm-border p-4">
@@ -178,7 +178,7 @@ export default function SeasonalOutlook() {
             </div>
           )}
 
-          {/* methodology — always visible, honest */}
+          {/* methodology - always visible, honest */}
           {outlook && (
             <div className="mt-6 flex items-start gap-2 text-warm-muted text-[11px] leading-relaxed max-w-3xl">
               <Info size={13} className="flex-shrink-0 mt-0.5" />

@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────
-// Government Planning & Trade Analytics — data seam (spec A22 + A6.1)
+// Government Planning & Trade Analytics - data seam (spec A22 + A6.1)
 //
 // Single source the government dashboards & reports read from. Computes the NPA
 // (National Planning Authority, framed against NDP IV) and MTIC (Ministry of
@@ -8,13 +8,13 @@
 // replace the body of that function later with no UI change.
 //
 // Each report is independent and carries:
-//   priority     — display/priority order within its institution
-//   description  — one-line plain-language summary
-//   alignment    — the NDP IV / MTIC mandate it feeds
-//   stats        — headline metric tiles
-//   bars         — a CSS-bar visualisation
-//   insights     — short computed narrative bullets
-//   detail       — { columns, rows } detailed entries backing the report and
+//   priority     - display/priority order within its institution
+//   description  - one-line plain-language summary
+//   alignment    - the NDP IV / MTIC mandate it feeds
+//   stats        - headline metric tiles
+//   bars         - a CSS-bar visualisation
+//   insights     - short computed narrative bullets
+//   detail       - { columns, rows } detailed entries backing the report and
 //                  the source for the CSV / XLSX / PDF "deep download"
 //
 // Per A22.3 figures are computed from recorded activity rather than estimated;
@@ -45,7 +45,7 @@ const num = (n) => Math.round(n).toLocaleString();
 const pct = (n) => `${n.toFixed(1)}%`;
 
 const ROLE_NAME = ACTOR_TYPES.reduce((m, t) => ((m[t.code] = t.short), m), {});
-const roleName = (r) => ROLE_NAME[r] || r || "—";
+const roleName = (r) => ROLE_NAME[r] || r || "-";
 
 // Synchronous index of the report set per institution, in priority order.
 // Used by navigation (sidebar) and routing without awaiting the full compute.
@@ -165,13 +165,13 @@ export async function getGovernmentAnalytics() {
   const txDetail = (rows) => ({
     columns: ["Txn ID", "Date", "Seller", "Buyer", "Product", "Qty", "Value", "Status"],
     rows: rows.map((t) => [
-      t.id, t.date || "—",
-      `${t.sellerName || t.seller || "—"} (${roleName(t.sellerRole)})`,
-      `${t.buyerName || t.buyer || "—"} (${roleName(t.buyerRole)})`,
-      t.product || "—",
-      t.quantity != null ? `${num(t.quantity)} ${t.unit || ""}`.trim() : "—",
-      typeof t.total === "number" ? ugx(t.total) : "—",
-      t.status || "—",
+      t.id, t.date || "-",
+      `${t.sellerName || t.seller || "-"} (${roleName(t.sellerRole)})`,
+      `${t.buyerName || t.buyer || "-"} (${roleName(t.buyerRole)})`,
+      t.product || "-",
+      t.quantity != null ? `${num(t.quantity)} ${t.unit || ""}`.trim() : "-",
+      typeof t.total === "number" ? ugx(t.total) : "-",
+      t.status || "-",
     ]),
   });
   const commodityDetail = {
@@ -184,15 +184,15 @@ export async function getGovernmentAnalytics() {
     columns: ["Batch ID", "Actor", "Type", "Traceability", "EUDR", "Anomaly"],
     rows: BATCHES.map((b) => [
       b.id, b.tradeId || b.actor, b.type,
-      b.traceability || "—",
-      b.eudrCompliant || b.eudrEligible ? "Compliant" : "—",
+      b.traceability || "-",
+      b.eudrCompliant || b.eudrEligible ? "Compliant" : "-",
       b.traceability === "full" ? "None" : "Flagged",
     ]),
   };
   const priceDetail = {
     columns: ["Commodity", "Buy (UGX)", "Sell (UGX)", "Spread", "Unit", "Region", "Source"],
     rows: MARKET_PRICES.map((p) => [
-      p.commodity, num(p.buy), num(p.sell), num(p.sell - p.buy), p.unit, p.region || "—", p.source || "—",
+      p.commodity, num(p.buy), num(p.sell), num(p.sell - p.buy), p.unit, p.region || "-", p.source || "-",
     ]),
   };
   const regionDetail = {
@@ -200,7 +200,7 @@ export async function getGovernmentAnalytics() {
     rows: GOV_STATS.regionBreakdown.map((r) => [r.region, num(r.actors), ugx(r.value)]),
   };
 
-  // ── NPA — NDP IV Alignment View (lead panel) ───────────────────────────────
+  // ── NPA - NDP IV Alignment View (lead panel) ───────────────────────────────
   const alignmentView = {
     title: "NDP IV Alignment View",
     intro:
@@ -209,8 +209,8 @@ export async function getGovernmentAnalytics() {
       { ndpElement: "Full monetisation of the economy", feeds: "Recorded vs informal trade value, trended", value: ugx(GOV_STATS.totalTransactionValue), note: `${num(GOV_STATS.transactionCount)} recorded transactions` },
       { ndpElement: "100% formal financial inclusion", feeds: "Trade actors gaining verifiable trade histories (gender, youth, region)", value: num(GOV_STATS.formalizedActors), note: `${pct(formalShare)} of ${num(target)} target` },
       { ndpElement: "Enhance Production, Productivity & Value Addition", feeds: "Raw-vs-processed ratio and processor activity", value: pct(processedShare), note: `${countRole("VAP") + countRole("MFR")} processors/manufacturers active` },
-      { ndpElement: "Agro-Industrialisation — strengthen cooperatives", feeds: "Cooperative registration & activity", value: num(coopCount), note: `${coopTx.length} recorded cooperative/aggregator deals` },
-      { ndpElement: "Agro-Industrialisation — eliminate counterfeits", feeds: "Traceability anomaly flags", value: pct(traceableRate), note: `${traceAnomalies} anomaly flags raised` },
+      { ndpElement: "Agro-Industrialisation - strengthen cooperatives", feeds: "Cooperative registration & activity", value: num(coopCount), note: `${coopTx.length} recorded cooperative/aggregator deals` },
+      { ndpElement: "Agro-Industrialisation - eliminate counterfeits", feeds: "Traceability anomaly flags", value: pct(traceableRate), note: `${traceAnomalies} anomaly flags raised` },
       { ndpElement: "NDP M&E system / RRF", feeds: "All of the above as indicator feeds", value: "Active", note: "7 NPA indicators published" },
     ],
   };
@@ -222,7 +222,7 @@ export async function getGovernmentAnalytics() {
       priority: 1,
       title: "NDP IV Results Framework (RRF) Indicator View",
       description: "DTP metrics mapped to NDP IV programme indicators, shown actual versus target.",
-      alignment: "Feeds NDP M&E / RRF · Core Objective 1 — Enhance Production, Productivity & Value Addition",
+      alignment: "Feeds NDP M&E / RRF · Core Objective 1 - Enhance Production, Productivity & Value Addition",
       stats: [
         { label: "Formalised actors (actual)", value: num(GOV_STATS.formalizedActors), sub: `Target ${num(target)}` },
         { label: "Value-addition ratio", value: pct(processedShare), sub: "Target 30.0%" },
@@ -230,7 +230,7 @@ export async function getGovernmentAnalytics() {
         { label: "EUDR-ready batches", value: num(eudrBatches), sub: `${num(GOV_STATS.eudrCompliantBatches)} national` },
       ],
       bars: {
-        title: "Indicator — actual vs target",
+        title: "Indicator - actual vs target",
         items: [
           { label: "Formalisation %", value: formalShare, display: pct(formalShare) },
           { label: "Value addition %", value: processedShare, display: pct(processedShare) },
@@ -247,9 +247,9 @@ export async function getGovernmentAnalytics() {
         rows: [
           ["Formalised actors", num(GOV_STATS.formalizedActors), num(target), `${pct(formalShare)} of target`],
           ["Value-addition ratio", pct(processedShare), "30.0%", processedShare >= 30 ? "On track" : "Below target"],
-          ["Recorded trade value", ugx(GOV_STATS.totalTransactionValue), "—", "Trended"],
+          ["Recorded trade value", ugx(GOV_STATS.totalTransactionValue), "-", "Trended"],
           ["Traceability rate", pct(traceableRate), "100.0%", traceableRate >= 100 ? "Met" : "Building"],
-          ["EUDR-ready batches", num(eudrBatches), "—", "Monitored"],
+          ["EUDR-ready batches", num(eudrBatches), "-", "Monitored"],
         ],
       },
     },
@@ -303,8 +303,8 @@ export async function getGovernmentAnalytics() {
       id: "agro",
       priority: 4,
       title: "Agro-Industrialisation Programme Report",
-      description: "Value-addition activity — raw versus processed — and active processor functionality by recorded value.",
-      alignment: "Agro-Industrialisation — increase value addition · backward/forward linkages",
+      description: "Value-addition activity - raw versus processed - and active processor functionality by recorded value.",
+      alignment: "Agro-Industrialisation - increase value addition · backward/forward linkages",
       stats: [
         { label: "Processed trade value", value: ugx(processedValue), sub: pct(processedShare) + " of recorded" },
         { label: "Raw trade value", value: ugx(rawValue), sub: pct(100 - processedShare) + " of recorded" },
@@ -346,7 +346,7 @@ export async function getGovernmentAnalytics() {
       },
       insights: [
         `${num(coopCount)} aggregators/cooperatives recorded ${coopTx.length} digital deals.`,
-        `${pct(traceableRate)} of batches carry full provenance — ${traceAnomalies} anomaly flags raised.`,
+        `${pct(traceableRate)} of batches carry full provenance - ${traceAnomalies} anomaly flags raised.`,
         traceAnomalies === 0 ? "No counterfeit or adulteration signals detected in the current sample." : `${traceAnomalies} batches need review.`,
       ],
       detail: batchDetail,
@@ -385,7 +385,7 @@ export async function getGovernmentAnalytics() {
         { label: "Exporters (EXP)", value: num(countRole("EXP")), sub: "chain exit" },
       ],
       bars: {
-        title: "Coffee (Arabica) price along the chain — where value accrues",
+        title: "Coffee (Arabica) price along the chain - where value accrues",
         items: chainStages,
       },
       insights: chainStages.length >= 2 ? [
@@ -429,10 +429,10 @@ export async function getGovernmentAnalytics() {
       detail: {
         columns: ["Pipeline stage", "Actors", "Share of registered"],
         rows: [
-          ["Profile incomplete", num(GOV_STATS.profileIncomplete), "—"],
+          ["Profile incomplete", num(GOV_STATS.profileIncomplete), "-"],
           ["Registered (active Trade ID)", num(GOV_STATS.activeTradeIds), "100%"],
           ["Actively transacting", num(transactingNational), pct((transactingNational / GOV_STATS.activeTradeIds) * 100)],
-          ["Suspended", num(ADMIN_STATS.suspendedAccounts), "—"],
+          ["Suspended", num(ADMIN_STATS.suspendedAccounts), "-"],
         ],
       },
     },
@@ -469,7 +469,7 @@ export async function getGovernmentAnalytics() {
         { label: "Input sourcing deals", value: num(TRANSACTIONS.filter((t) => t.buyerRole === "MFR").length), sub: "upstream" },
       ],
       bars: {
-        title: "Manufactured goods — recorded value by product",
+        title: "Manufactured goods - recorded value by product",
         items: Object.entries(commodityMap)
           .filter(([k]) => isProcessed(k) || /Flour|Salt/.test(k))
           .map(([label, v]) => ({ label, value: v.val, display: ugx(v.val) }))
@@ -533,7 +533,7 @@ export async function getGovernmentAnalytics() {
       detail: {
         columns: ["Destination", "Product", "Quantity", "EUDR doc", "Status"],
         rows: BATCHES.filter((b) => b.type === "export").map((b) => [
-          b.destination, b.inputProduct, `${num(b.inputQuantity)} ${b.inputUnit || "kg"}`, b.eudrDocRef || "—", b.status,
+          b.destination, b.inputProduct, `${num(b.inputQuantity)} ${b.inputUnit || "kg"}`, b.eudrDocRef || "-", b.status,
         ]),
       },
       note: "EU-bound coffee carries EUDR due-diligence; EAC inbound flow recorded from Kenya (industrial salt).",
@@ -601,6 +601,6 @@ export async function getGovernmentAnalytics() {
     mtic: { institution: "MTIC", label: "Ministry of Trade, Industry & Cooperatives", reports: mticReports },
   };
 
-  // Simulated async boundary — a real API call replaces this body later.
+  // Simulated async boundary - a real API call replaces this body later.
   return new Promise((resolve) => setTimeout(() => resolve(payload), 350));
 }

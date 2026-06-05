@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ClipboardList, Inbox, ArrowRight, Loader2, Package, Plus, MessageSquare } from "lucide-react";
+import { ClipboardList, Inbox, ArrowRight, Loader2, Package, Plus, MessageSquare, Edit2, Eye, EyeOff } from "lucide-react";
 import GovShell from "../components/GovShell";
 import { useAuth } from "../context/AuthContext";
 import { formatUGX } from "../data/demo";
-import { getMyRequests, getMyOffers, canPost, canRespond, STATUS_LABELS } from "../data/supplyRequests";
+import { getMyRequests, getMyOffers, canPost, canRespond, STATUS_LABELS, setRequestActive } from "../data/supplyRequests";
+import { NewRequestModal } from "./SourcingBoard";
 
 const REQ_STATUS_STYLE = {
   live: "bg-blue-50 text-blue-700 border-blue-200",
@@ -27,9 +28,13 @@ export default function MySupplyRequests() {
   const [reqs, setReqs] = useState([]);
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
+  const [editing, setEditing] = useState(null);
 
   const isFBR = user?.role === "FBR";
   const noun = isFBR ? "Supply Notes" : "Supply Requests";
+  const poster = user && canPost(user.role);
+  const responder = user && canRespond(user.role);
 
   const load = useCallback(async () => {
     if (!user) { setLoading(false); return; }
@@ -40,6 +45,7 @@ export default function MySupplyRequests() {
   useEffect(() => { load(); }, [load]);
 
   const open = (id) => navigate(`/sourcing-board?open=${id}`);
+  async function toggleActive(r) { await setRequestActive(r.id, r.published === false); load(); }
 
   return (
     <GovShell>
@@ -47,12 +53,16 @@ export default function MySupplyRequests() {
         <div className="absolute -top-12 -right-12 w-48 h-48 bg-gold opacity-[0.05] rounded-full" />
         <div className="relative flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <div className="flex items-center gap-2 text-gold text-xs font-bold uppercase tracking-wider mb-2"><ClipboardList size={14} /> My {noun}</div>
-            <h1 className="text-white font-bold text-2xl md:text-3xl mb-2">My {noun} &amp; offers</h1>
-            <p className="text-white/50 text-sm max-w-2xl leading-relaxed">Track the requests you have posted and the offers you have made, and jump in to manage offers or convert them to orders.</p>
+            <div className="flex items-center gap-2 text-gold text-xs font-bold uppercase tracking-wider mb-2"><ClipboardList size={14} /> {poster ? `My ${noun}` : "My offers"}</div>
+            <h1 className="text-white font-bold text-2xl md:text-3xl mb-2">{poster ? `My ${noun} & offers` : "My offers"}</h1>
+            <p className="text-white/50 text-sm max-w-2xl leading-relaxed">
+              {poster
+                ? "Demand you have posted to the Sourcing Board and the offers you have made - manage offers or convert accepted ones to orders here."
+                : "The offers you have made in response to open sourcing requests - manage them or convert accepted offers to orders here."}
+            </p>
           </div>
-          {user && canPost(user.role) && (
-            <button onClick={() => navigate("/sourcing-board?new=1")}
+          {poster && (
+            <button onClick={() => setShowAdd(true)}
               className="flex items-center gap-2 bg-gold hover:bg-gold-mid text-ink font-bold px-4 py-2.5 rounded-lg text-sm transition-all whitespace-nowrap">
               <Plus size={16} /> {isFBR ? "Raise a Supply Note" : "Post a supply request"}
             </button>
@@ -65,7 +75,7 @@ export default function MySupplyRequests() {
       ) : (
         <div className="space-y-8">
           {/* Posted requests */}
-          {user && canPost(user.role) && (
+          {poster && (
             <section>
               <h2 className="font-bold text-ink text-sm uppercase tracking-wider text-warm-muted mb-3 flex items-center gap-2"><ClipboardList size={14} /> {isFBR ? "Supply notes you've raised" : "Supply requests you've posted"}</h2>
               {reqs.length === 0 ? (
@@ -75,22 +85,30 @@ export default function MySupplyRequests() {
               ) : (
                 <div className="space-y-3">
                   {reqs.map((r) => (
-                    <button key={r.id} onClick={() => open(r.id)}
-                      className="w-full text-left bg-white border border-warm-border rounded-xl p-4 hover:border-gold transition-all flex items-center gap-4">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-ink text-sm">{r.commodity}</span>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${REQ_STATUS_STYLE[r.status]}`}>{STATUS_LABELS[r.status]}</span>
+                    <div key={r.id} className="bg-white border border-warm-border rounded-xl p-4">
+                      <div className="flex items-center gap-4">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-ink text-sm">{r.commodity}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${REQ_STATUS_STYLE[r.status]}`}>{STATUS_LABELS[r.status]}</span>
+                            {r.published === false && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-gray-50 text-gray-600 border-gray-200">Unpublished</span>}
+                          </div>
+                          <div className="text-xs text-warm-muted mt-0.5 font-mono">{r.id}</div>
+                          <div className="text-xs text-warm-text mt-1">{Number(r.quantity).toLocaleString()} {r.unit} · {r.deliveryDistrict} · closes {r.validUntil}</div>
                         </div>
-                        <div className="text-xs text-warm-muted mt-0.5 font-mono">{r.id}</div>
-                        <div className="text-xs text-warm-text mt-1">{Number(r.quantity).toLocaleString()} {r.unit} · {r.deliveryDistrict} · closes {r.validUntil}</div>
+                        <div className="text-right flex-shrink-0">
+                          <div className="text-lg font-bold text-ink">{r.offers.length}</div>
+                          <div className="text-[10px] text-warm-muted">offer{r.offers.length !== 1 ? "s" : ""}</div>
+                        </div>
                       </div>
-                      <div className="text-right flex-shrink-0">
-                        <div className="text-lg font-bold text-ink">{r.offers.length}</div>
-                        <div className="text-[10px] text-warm-muted">offer{r.offers.length !== 1 ? "s" : ""}</div>
+                      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-warm-border flex-wrap">
+                        <button onClick={() => open(r.id)} className="flex items-center gap-1 bg-ink hover:bg-ink-mid text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">Manage offers <ArrowRight size={12} /></button>
+                        <button onClick={() => setEditing(r)} className="flex items-center gap-1 border border-warm-border hover:border-ink text-ink text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"><Edit2 size={12} /> Edit</button>
+                        <button onClick={() => toggleActive(r)} className="flex items-center gap-1 border border-warm-border hover:border-ink text-warm-text text-xs font-semibold px-3 py-1.5 rounded-lg transition-all">
+                          {r.published === false ? <><Eye size={12} /> Reactivate</> : <><EyeOff size={12} /> Deactivate</>}
+                        </button>
                       </div>
-                      <span className="text-gold text-xs font-semibold flex items-center gap-1 flex-shrink-0">Manage <ArrowRight size={12} /></span>
-                    </button>
+                    </div>
                   ))}
                 </div>
               )}
@@ -98,7 +116,7 @@ export default function MySupplyRequests() {
           )}
 
           {/* Offers made */}
-          {user && canRespond(user.role) && (
+          {responder && (
             <section>
               <h2 className="font-bold text-ink text-sm uppercase tracking-wider text-warm-muted mb-3 flex items-center gap-2"><Inbox size={14} /> Offers you've made</h2>
               {offers.length === 0 ? (
@@ -126,6 +144,15 @@ export default function MySupplyRequests() {
             </section>
           )}
         </div>
+      )}
+
+      {(showAdd || editing) && (
+        <NewRequestModal
+          user={user}
+          existing={editing}
+          onClose={() => { setShowAdd(false); setEditing(null); }}
+          onCreated={() => { setShowAdd(false); setEditing(null); load(); }}
+        />
       )}
     </GovShell>
   );

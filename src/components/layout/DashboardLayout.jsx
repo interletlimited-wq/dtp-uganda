@@ -4,12 +4,14 @@ import { useAuth } from "../../context/AuthContext";
 import LanguageSwitcher from "../LanguageSwitcher";
 import { getActorNotificationsFallbackWithRuntime, markAllRead } from "../../data/demo";
 import { GOV_REPORT_INDEX } from "../../data/governance";
+import { canUseExpenses } from "../../data/expenses";
+import { canUseStock } from "../../data/stock";
 import {
   LayoutDashboard, BookOpen, ShoppingBag, TrendingUp,
   Link, User, Settings, LogOut, Menu, X, Shield,
   Bell, ChevronDown, Sprout, Factory, Building2,
   Handshake, Ship, PackageOpen, ShoppingCart, Truck,
-  BarChart3, Users, FileText, Store, Package, PenLine, Lock, Inbox, HelpCircle, Lightbulb, Globe, ClipboardList, ArrowRight as ArrowRightIcon
+  BarChart3, Users, FileText, Store, Package, PenLine, Lock, Inbox, HelpCircle, Lightbulb, Globe, ClipboardList, Receipt, Boxes, Scale, ArrowRight as ArrowRightIcon
 } from "lucide-react";
 
 const ROLE_NAV = {
@@ -25,7 +27,6 @@ const ROLE_NAV = {
     { icon: PenLine, label: "Record a Sale", path: "/record-sale" },
     { icon: Link, label: "My Listings", path: "/listings" },
     { icon: Store, label: "My Stores", path: "/stores" },
-    { icon: HelpCircle, label: "Help and Support", path: "/help" },
     { icon: HelpCircle, label: "Help and Support", path: "/help" },
     { icon: User, label: "My Profile", path: "/profile" },
   ],
@@ -145,19 +146,108 @@ const ROLE_NAV = {
     { icon: TrendingUp, label: "Market Prices", path: "/market-prices" },
     { icon: User, label: "My Profile", path: "/profile" },
   ],
+  WHS: [
+    { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+    { icon: BookOpen, label: "Sales Ledger", path: "/ledger" },
+    { icon: ShoppingBag, label: "Public Marketplace", path: "/marketplace" },
+    { icon: Lock, label: "Private Marketplace", path: "/marketplace/private" },
+    { icon: Inbox, label: "Purchase Requests", path: "/requests" },
+    { icon: ShoppingCart, label: "My Orders", path: "/orders" },
+    { icon: TrendingUp, label: "Market Prices", path: "/market-prices" },
+    { icon: Package, label: "My Products", path: "/products" },
+    { icon: PenLine, label: "Record a Sale", path: "/record-sale" },
+    { icon: Link, label: "My Listings", path: "/listings" },
+    { icon: HelpCircle, label: "Help and Support", path: "/help" },
+    { icon: User, label: "My Profile", path: "/profile" },
+  ],
 };
+
+// Roles that participate in the Supply Requests / Sourcing Board (A16).
+const SOURCING_ROLES = ["AGR", "VAP", "MFR", "AGT", "EXP", "IMP", "BYR", "CSM", "FBR", "TRP", "WHS"];
+
+// Builds a trade actor's sidebar with collapsible groups:
+//  • "Supply Requests" (Sourcing Board, My Supply Requests, Purchase Requests)
+//  • "Sales & Expenses" (the role's ledger, Record a Sale, Expenses)
+// De-duplicates by path (fixes the duplicated Help link) and pulls the regrouped
+// items out of the flat list so they appear only inside their group.
+function buildTradeNav(role) {
+  const seen = new Set();
+  const flat = (ROLE_NAV[role] || ROLE_NAV.AGR).filter((i) => (seen.has(i.path) ? false : (seen.add(i.path), true)));
+  const byPath = (p) => flat.find((i) => i.path === p);
+  const isFBR = role === "FBR";
+
+  const ledger = byPath("/ledger");
+  const recordSale = byPath("/record-sale");
+  const requests = byPath("/requests");
+
+  // Supply Requests group
+  const supplyChildren = isFBR
+    ? [
+        { icon: ClipboardList, label: "Raise a Supply Note", path: "/sourcing-board?new=1" },
+        { icon: Inbox, label: "My Supply Notes", path: "/sourcing-board/mine" },
+      ]
+    : [
+        { icon: ClipboardList, label: "Sourcing Board", path: "/sourcing-board" },
+        { icon: Inbox, label: "My Supply Requests", path: "/sourcing-board/mine" },
+        ...(requests ? [{ icon: requests.icon, label: "Purchase Requests", path: requests.path }] : []),
+      ];
+  const supplyGroup = SOURCING_ROLES.includes(role)
+    ? { group: true, key: "supply", icon: ClipboardList, label: isFBR ? "Supply Notes" : "Supply Requests", children: supplyChildren }
+    : null;
+
+  // Sales & Expenses group (or a lone Expenses link when there's no ledger/sale)
+  const financeChildren = [
+    ...(ledger ? [{ icon: ledger.icon, label: ledger.label, path: ledger.path }] : []),
+    ...(recordSale ? [{ icon: recordSale.icon, label: recordSale.label, path: recordSale.path }] : []),
+    ...(canUseExpenses(role) ? [{ icon: Receipt, label: "Expenses", path: "/expenses" }] : []),
+  ];
+  let financeGroup = null;
+  let loneFinanceLink = null;
+  if (financeChildren.length >= 2) financeGroup = { group: true, key: "finance", icon: BookOpen, label: "Sales & Expenses", children: financeChildren };
+  else if (financeChildren.length === 1) loneFinanceLink = financeChildren[0];
+
+  // A20 - Stock & Shop group (stock-holding domestic actors; not FBR/TRP/CSM).
+  const stockGroup = canUseStock(role)
+    ? {
+        group: true, key: "stock", icon: Boxes, label: "Stock Management",
+        children: [
+          { icon: Package, label: "Inventory", path: "/stock" },
+          { icon: Store, label: "Stores & Shops", path: "/stock/stores" },
+          { icon: ShoppingCart, label: "Record Sale", path: "/stock/sell" },
+          { icon: Scale, label: "Debts & Credits", path: "/stock/debts" },
+          { icon: TrendingUp, label: "Revenue & Profit", path: "/stock/finance" },
+          { icon: FileText, label: "Reports", path: "/stock/reports" },
+        ],
+      }
+    : null;
+
+  const REGROUPED = new Set(["/ledger", "/record-sale", "/requests"]);
+  const rest = flat.filter((i) => !REGROUPED.has(i.path));
+
+  const out = [];
+  rest.forEach((it, idx) => {
+    out.push(it);
+    if (idx === 0) { // insert groups right after Dashboard
+      if (supplyGroup) out.push(supplyGroup);
+      if (financeGroup) out.push(financeGroup);
+      else if (loneFinanceLink) out.push(loneFinanceLink);
+      if (stockGroup) out.push(stockGroup);
+    }
+  });
+  return out;
+}
 
 const ROLE_ICONS = {
   AGR: Sprout, VAP: Factory, MFR: Building2, AGT: Handshake,
   EXP: Ship, IMP: PackageOpen, BYR: ShoppingCart, TRP: Truck,
-  CSM: User, ADMIN: Shield, GOU: BarChart3, FBR: Globe,
+  CSM: User, ADMIN: Shield, GOU: BarChart3, FBR: Globe, WHS: Store,
 };
 
 const ROLE_COLORS = {
   AGR: "bg-green-500", VAP: "bg-amber-500", MFR: "bg-blue-500",
   AGT: "bg-purple-500", EXP: "bg-red-500", IMP: "bg-orange-500",
   BYR: "bg-teal-500", TRP: "bg-slate-500", CSM: "bg-pink-500",
-  ADMIN: "bg-gray-700", GOU: "bg-indigo-600", FBR: "bg-cyan-600",
+  ADMIN: "bg-gray-700", GOU: "bg-indigo-600", FBR: "bg-cyan-600", WHS: "bg-lime-600",
 };
 
 
@@ -184,7 +274,7 @@ const PAGE_HELP = {
   },
   "/products": {
     title: "My Products",
-    tip: "Products are your inventory — what you produce or stock. A product must exist before you can create a listing. Stock is deducted automatically when a sale completes.",
+    tip: "Products are your inventory - what you produce or stock. A product must exist before you can create a listing. Stock is deducted automatically when a sale completes.",
     articles: [
       "How to add a product to your catalogue",
       "How to declare new stock",
@@ -273,7 +363,7 @@ const PAGE_HELP = {
   },
   "/stores": {
     title: "My Stores",
-    tip: "Stores are your physical locations — farms, depots, warehouses, or buying stations. Listing a store makes it easier for buyers to know where to collect goods.",
+    tip: "Stores are your physical locations - farms, depots, warehouses, or buying stations. Listing a store makes it easier for buyers to know where to collect goods.",
     articles: [
       "How to add a store or depot",
       "How stores appear on your listings",
@@ -432,37 +522,42 @@ export default function DashboardLayout({ children }) {
   const [notifOpen, setNotifOpen] = useState(false);
 
   const role = user?.role || "AGR";
-  let navItems = ROLE_NAV[role] || ROLE_NAV.AGR;
-  // GOU analysts get one nav entry per report in their institution's set (A22).
-  if (role === "GOU" && user?.institution && GOV_REPORT_INDEX[user.institution]) {
-    navItems = [
-      { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-      { icon: FileText, label: "Reports", path: "/government-analytics" },
-      ...GOV_REPORT_INDEX[user.institution].map((r) => ({
-        icon: FileText, label: r.navLabel, path: `/government-analytics/${r.id}`, sub: true,
-      })),
-      { icon: Users, label: "Actor Registry", path: "/registry" },
-      { icon: TrendingUp, label: "Market Prices", path: "/market-prices" },
-    ];
-  }
-  // A16 — Supply Requests group (Sourcing Board + My Supply Requests) for
-  // buyer/seller-capable roles. FBR sees the foreign-facing "Supply Note" labels.
-  const SOURCING_ROLES = ["AGR", "VAP", "MFR", "AGT", "EXP", "IMP", "BYR", "CSM", "FBR"];
-  if (SOURCING_ROLES.includes(role)) {
-    navItems = [...navItems];
-    const group = role === "FBR"
+  let navItems;
+  if (role === "ADMIN") {
+    navItems = ROLE_NAV.ADMIN;
+  } else if (role === "GOU") {
+    // GOU analysts get one nav entry per report in their institution's set (A22).
+    const base = (user?.institution && GOV_REPORT_INDEX[user.institution])
       ? [
-          { section: true, label: "Supply Notes" },
-          { icon: ClipboardList, label: "Raise a Supply Note", path: "/sourcing-board?new=1", sub: true },
-          { icon: Inbox, label: "My Supply Notes", path: "/sourcing-board/mine", sub: true },
+          { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+          { icon: FileText, label: "Reports", path: "/government-analytics" },
+          ...GOV_REPORT_INDEX[user.institution].map((r) => ({ icon: FileText, label: r.navLabel, path: `/government-analytics/${r.id}`, sub: true })),
+          { icon: Users, label: "Actor Registry", path: "/registry" },
+          { icon: TrendingUp, label: "Market Prices", path: "/market-prices" },
         ]
-      : [
-          { section: true, label: "Supply Requests" },
-          { icon: ClipboardList, label: "Sourcing Board", path: "/sourcing-board", sub: true },
-          { icon: Inbox, label: "My Supply Requests", path: "/sourcing-board/mine", sub: true },
-        ];
-    navItems.splice(1, 0, ...group);
+      : [...ROLE_NAV.GOU];
+    // Government markets management (markets / stalls / renters).
+    base.push({
+      group: true, key: "markets", icon: Store, label: "Markets",
+      children: [
+        { icon: Store, label: "Markets", path: "/markets" },
+        { icon: Boxes, label: "Stalls", path: "/markets/stalls" },
+        { icon: Users, label: "Stall Owners & Renters", path: "/markets/renters" },
+      ],
+    });
+    navItems = base;
+  } else {
+    navItems = buildTradeNav(role);
   }
+
+  const pathOf = (p) => (p || "").split("?")[0];
+  const isActive = (p) => location.pathname === pathOf(p);
+  // Collapsible group state. A group defaults to open when one of its children
+  // is the current route; explicit toggles override that default.
+  const [openGroups, setOpenGroups] = useState({});
+  const groupOpen = (g) => (openGroups[g.key] !== undefined ? openGroups[g.key] : g.children.some((c) => isActive(c.path)));
+  const toggleGroup = (g) => { const cur = groupOpen(g); setOpenGroups((s) => ({ ...s, [g.key]: !cur })); };
+
   const RoleIcon = ROLE_ICONS[role] || User;
   const roleColor = ROLE_COLORS[role] || "bg-gray-500";
 
@@ -497,7 +592,35 @@ export default function DashboardLayout({ children }) {
             if (item.section) {
               return <div key={`sec-${item.label}`} className="px-3 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-white/30">{item.label}</div>;
             }
-            const active = location.pathname === item.path;
+            if (item.group) {
+              const open = groupOpen(item);
+              const anyActive = item.children.some((c) => isActive(c.path));
+              return (
+                <div key={`grp-${item.key}`}>
+                  <button onClick={() => toggleGroup(item)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${anyActive ? "text-white" : "text-white/50 hover:text-white hover:bg-white/5"}`}>
+                    <item.icon size={16} className="flex-shrink-0" />
+                    <span className="flex-1 text-left">{item.label}</span>
+                    <ChevronDown size={14} className={`flex-shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+                  </button>
+                  {open && (
+                    <div className="mt-0.5 space-y-0.5">
+                      {item.children.map((c) => {
+                        const active = isActive(c.path);
+                        return (
+                          <button key={c.path} onClick={() => { navigate(c.path); setSidebarOpen(false); }}
+                            className={`w-full flex items-center gap-3 pl-9 pr-3 py-2 rounded-lg text-[13px] font-medium transition-all ${active ? "bg-white/10 text-white" : "text-white/40 hover:text-white hover:bg-white/5"}`}>
+                            <c.icon size={14} className="flex-shrink-0" />
+                            {c.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+            const active = isActive(item.path);
             return (
               <button key={item.path} onClick={() => { navigate(item.path); setSidebarOpen(false); }}
                 className={`w-full flex items-center gap-3 rounded-lg font-medium transition-all ${

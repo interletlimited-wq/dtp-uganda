@@ -156,7 +156,7 @@ function WhatItDelivers() {
           <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/25 text-gold text-[10px] font-bold tracking-[0.15em] uppercase px-3 py-1.5 rounded-full mb-4">
             What the platform delivers
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-ink tracking-tight mb-3">Six Capabilities. One Unified Platform.</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-ink tracking-tight mb-3">One Platform. Every Capability.</h2>
           <p className="text-warm-text text-sm leading-relaxed max-w-lg mx-auto">Everything tied to your Trade ID - from identity to credit, from traceability to market access.</p>
         </div>
 

@@ -183,7 +183,7 @@ function OrderCard({ order }) {
           </div>
           <div className="bg-warm-bg rounded-lg p-2.5">
             <div className="text-warm-muted mb-0.5">Source</div>
-            <div className="font-semibold text-ink">{order.district || "—"}</div>
+            <div className="font-semibold text-ink">{order.district || "-"}</div>
           </div>
           <div className="bg-warm-bg rounded-lg p-2.5">
             <div className="text-warm-muted mb-0.5">Date</div>

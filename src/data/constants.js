@@ -56,6 +56,15 @@ export const ACTOR_TYPES = [
     grades: ["Individual Buyer", "Corporate Buyer", "Institutional Buyer"],
   },
   {
+    code: "WHS",
+    name: "Wholesaler",
+    short: "Wholesaler",
+    icon: "Store",
+    desc: "Buy in bulk and resell to retailers and traders. Manage multi-store stock, sales, debts and shop bookkeeping.",
+    grades: ["Small Wholesaler", "Medium Wholesaler", "Large Wholesaler / Distributor"],
+    local: true,
+  },
+  {
     code: "TRP",
     name: "Transporter",
     short: "Transporter",
@@ -74,15 +83,15 @@ export const ACTOR_TYPES = [
   },
   {
     code: "CSM",
-    name: "Consumer",
-    short: "Consumer",
+    name: "Retail Consumer",
+    short: "Retail Consumer",
     icon: "User",
     desc: "Buy directly from verified sellers on the marketplace. Get a Consumer ID and shop with confidence.",
     grades: ["Standard Consumer", "Verified Consumer"],
   },
 ];
 
-// FBR (Foreign Buyer / International Trader) — nature-of-business sub-types.
+// FBR (Foreign Buyer / International Trader) - nature-of-business sub-types.
 // More than one may be selected. (Spec: Foreign Trade Actor registration.)
 export const FBR_NATURE_OF_BUSINESS = [
   "Manufacturer",
@@ -455,6 +464,18 @@ export const SAMPLE_ACCOUNTS = [
     password: "password123",
   },
   {
+    username: "mukasa_wholesalers",
+    name: "Mukasa Wholesalers Ltd",
+    role: "WHS",
+    grade: "Large Wholesaler / Distributor",
+    tradeId: "UG-DTP-WHS-00045",
+    district: "Kampala",
+    products: ["Maize", "Beans (Common)", "Sugar (Refined)"],
+    type: "entity",
+    verified: "URSB",
+    password: "password123",
+  },
+  {
     username: "neumann_gruppe",
     name: "Neumann Gruppe GmbH",
     role: "FBR",
@@ -510,7 +531,7 @@ export const SAMPLE_ACCOUNTS = [
   },
   {
     username: "mtic_analyst",
-    name: "MTIC Trade Analyst",
+    name: "David Ssemwogerere",
     role: "GOU",
     roleLabel: "MTIC",
     institution: "MTIC",
@@ -520,7 +541,7 @@ export const SAMPLE_ACCOUNTS = [
   },
   {
     username: "npa_analyst",
-    name: "NPA Planning Analyst",
+    name: "Brenda Atuhaire",
     role: "GOU",
     roleLabel: "NPA",
     institution: "NPA",

@@ -953,7 +953,7 @@ function GovReportHighlights({ institution }) {
   return (
     <div className="bg-white border border-warm-border rounded-xl p-5 mb-6">
       <div className="flex items-center justify-between mb-4">
-        <SectionHeader title={`${institution} key reports — priority order`} />
+        <SectionHeader title={`${institution} key reports - priority order`} />
         <button onClick={() => navigate("/government-analytics")}
           className="text-gold text-xs font-semibold flex items-center gap-1 hover:gap-2 transition-all whitespace-nowrap">
           Open full reports <ChevronRight size={12} />
@@ -995,8 +995,8 @@ function GOUDashboard({ user }) {
   const stats = GOV_STATS;
   const institution = user?.institution || "MTIC";
   const HEAD = {
-    NPA: { title: "National Planning Authority — Planning Dashboard", sub: "NDP IV monitoring & evaluation · Results & Resources Framework" },
-    MTIC: { title: "Ministry of Trade, Industry & Cooperatives — Trade Dashboard", sub: "Trade formalisation, value addition and cooperatives oversight" },
+    NPA: { title: "National Planning Authority - Planning Dashboard", sub: "NDP IV monitoring & evaluation · Results & Resources Framework" },
+    MTIC: { title: "Ministry of Trade, Industry & Cooperatives - Trade Dashboard", sub: "Trade formalisation, value addition and cooperatives oversight" },
   };
   const head = HEAD[institution] || HEAD.MTIC;
 
@@ -1012,7 +1012,7 @@ function GOUDashboard({ user }) {
         </div>
       </div>
 
-      {/* Institution report set — priority order (A22), in addition to national stats */}
+      {/* Institution report set - priority order (A22), in addition to national stats */}
       <GovReportHighlights institution={institution} />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -1231,8 +1231,8 @@ function FBRDashboard({ user }) {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Country of origin" value={user?.country || "—"} sub="Sourcing origin" icon={Globe} color="bg-cyan-50" iconColor="text-cyan-600" />
-        <StatCard label="Business lines" value={nature.length || "—"} sub={nature.slice(0, 2).join(", ") || "Not set"} icon={Ship} color="bg-blue-50" iconColor="text-blue-600" />
+        <StatCard label="Country of origin" value={user?.country || "-"} sub="Sourcing origin" icon={Globe} color="bg-cyan-50" iconColor="text-cyan-600" />
+        <StatCard label="Business lines" value={nature.length || "-"} sub={nature.slice(0, 2).join(", ") || "Not set"} icon={Ship} color="bg-blue-50" iconColor="text-blue-600" />
         <StatCard label="Products of interest" value={products.length} sub="Sourcing focus" icon={Package} color="bg-amber-50" iconColor="text-amber-600" />
         <StatCard label="Account status" value="Active" sub="International Verified" icon={CheckCircle} color="bg-green-50" iconColor="text-green-600" />
       </div>
@@ -1302,6 +1302,7 @@ export default function Dashboard() {
     ADMIN: ADMINDashboard,
     GOU: GOUDashboard,
     FBR: FBRDashboard,
+    WHS: AGTDashboard,
   };
 
   const RoleDashboard = dashboards[user?.role] || AGRDashboard;

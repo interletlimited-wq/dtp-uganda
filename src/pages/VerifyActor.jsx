@@ -8,11 +8,12 @@ import PublicFooter from "../components/PublicFooter";
 import { useAuth } from "../context/AuthContext";
 import TrustTick from "../components/TrustTick";
 
-const ROLE_ICONS = { AGR: Sprout, VAP: Factory, MFR: Building2, AGT: Handshake, EXP: Ship, IMP: PackageOpen, BYR: ShoppingCart, TRP: Truck, CSM: User, ADMIN: Shield, GOU: BarChart3, FBR: Globe };
-const ROLE_NAMES = { AGR: "Farmer / Agro-producer", VAP: "Value-added Processor", MFR: "Manufacturer", AGT: "Aggregator / Trader", EXP: "Exporter", IMP: "Importer", BYR: "Buyer / Offtaker", TRP: "Transporter", CSM: "Consumer", ADMIN: "Platform Administrator", GOU: "GoU Oversight", FBR: "Foreign Buyer / International Trader" };
-const ROLE_COLORS = { AGR: "bg-green-500", VAP: "bg-amber-500", MFR: "bg-blue-500", AGT: "bg-purple-500", EXP: "bg-red-500", IMP: "bg-orange-500", BYR: "bg-teal-500", TRP: "bg-slate-500", CSM: "bg-pink-500", ADMIN: "bg-gray-700", GOU: "bg-indigo-600", FBR: "bg-cyan-600" };
+const ROLE_ICONS = { AGR: Sprout, VAP: Factory, MFR: Building2, AGT: Handshake, EXP: Ship, IMP: PackageOpen, BYR: ShoppingCart, WHS: Store, TRP: Truck, CSM: User, ADMIN: Shield, GOU: BarChart3, FBR: Globe };
+const ROLE_NAMES = { AGR: "Farmer / Agro-producer", VAP: "Value-added Processor", MFR: "Manufacturer", AGT: "Aggregator / Trader", EXP: "Exporter", IMP: "Importer", BYR: "Buyer / Offtaker", WHS: "Wholesaler", TRP: "Transporter", CSM: "Retail Consumer", ADMIN: "Platform Administrator", GOU: "GoU Oversight", FBR: "Foreign Buyer / International Trader" };
+const ROLE_COLORS = { AGR: "bg-green-500", VAP: "bg-amber-500", MFR: "bg-blue-500", AGT: "bg-purple-500", EXP: "bg-red-500", IMP: "bg-orange-500", BYR: "bg-teal-500", WHS: "bg-lime-600", TRP: "bg-slate-500", CSM: "bg-pink-500", ADMIN: "bg-gray-700", GOU: "bg-indigo-600", FBR: "bg-cyan-600" };
 
 function ActorProfile({ actor }) {
+  const navigate = useNavigate();
   const RoleIcon = ROLE_ICONS[actor.role] || User;
   const roleColor = ROLE_COLORS[actor.role] || "bg-gray-500";
   const ratingCount = getSellerRatingCount(actor.username || actor.tradeId);
@@ -108,7 +109,7 @@ function ActorProfile({ actor }) {
             <span className="text-sm text-warm-text">Trust tick</span>
             <span className="flex items-center gap-1.5 text-xs font-semibold">
               <TrustTick ratingCount={ratingCount} size={14} />
-              {trustLevel === "green" ? "Green — 100+ verified ratings" : "Gray — building trust rating"}
+              {trustLevel === "green" ? "Green - 100+ verified ratings" : "Gray - building trust rating"}
             </span>
           </div>
           {[["Trade ID status", "Active", true], ["Platform registration", "Complete", true], ["Account standing", "Good standing", true]].map(([l, v, ok]) => (

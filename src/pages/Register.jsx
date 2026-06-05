@@ -7,13 +7,13 @@ import { useAuth } from "../context/AuthContext";
 import {
   Eye, EyeOff, ArrowRight, ArrowLeft, Shield, Check, X,
   Sprout, Factory, Building2, Handshake, Ship, PackageOpen,
-  ShoppingCart, Truck, Globe, User as UserIcon
+  ShoppingCart, Truck, Globe, Store, User as UserIcon
 } from "lucide-react";
 import { ACTOR_TYPES } from "../data/constants";
 
 const LUCIDE_ICONS = {
   Sprout, Factory, Building2, Handshake, Ship, PackageOpen,
-  ShoppingCart, Truck, Globe, User: UserIcon,
+  ShoppingCart, Truck, Globe, Store, User: UserIcon,
 };
 
 function RoleIcon({ name, size = 18, className = "" }) {

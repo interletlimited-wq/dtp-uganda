@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ShoppingBag, TrendingUp, Search, HelpCircle,
-  Smartphone, Menu, X, ArrowRight, Sprout
+  Smartphone, Menu, X, ArrowRight, Sprout, ChevronDown, ClipboardList
 } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -11,15 +11,26 @@ export default function PublicNav({ activeRoute = "" }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [showApp, setShowApp] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef(null);
+  useEffect(() => {
+    function onDoc(e) { if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false); }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
 
   const links = [
     { icon: ShoppingBag, label: "Marketplace",   path: "/marketplace"   },
+    { icon: ClipboardList, label: "Sourcing Board", path: "/sourcing-board" },
     { icon: TrendingUp,  label: "Market Prices", path: "/market-prices" },
     { icon: Sprout,      label: "Seasonal Outlook", path: "/seasonal-outlook" },
     { icon: Search,      label: "Verify Actor",  path: "/verify"        },
     { icon: Smartphone,  label: "Download App",  path: null, action: () => setShowApp(true) },
     { icon: HelpCircle,  label: "Help",          path: "/help"          },
   ];
+  const PRIMARY = ["/marketplace", "/market-prices", "/seasonal-outlook", "/verify"];
+  const primaryLinks = links.filter(l => PRIMARY.includes(l.path));
+  const moreLinks = links.filter(l => !PRIMARY.includes(l.path));
 
   return (
     <>
@@ -35,7 +46,7 @@ export default function PublicNav({ activeRoute = "" }) {
 
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-0.5 ml-6">
-          {links.map(l => (
+          {primaryLinks.map(l => (
             <button key={l.label}
               onClick={() => l.action ? l.action() : navigate(l.path)}
               className={`flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg transition-all ${
@@ -46,6 +57,30 @@ export default function PublicNav({ activeRoute = "" }) {
               <l.icon size={13} />{l.label}
             </button>
           ))}
+          <div className="relative" ref={moreRef}>
+            <button
+              onClick={() => setMoreOpen(o => !o)}
+              className={`flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg transition-all ${
+                moreOpen || moreLinks.some(l => l.path === activeRoute)
+                  ? "text-white bg-white/10"
+                  : "text-white/60 hover:text-white hover:bg-white/8"
+              }`}>
+              More <ChevronDown size={13} className={`transition-transform ${moreOpen ? "rotate-180" : ""}`} />
+            </button>
+            {moreOpen && (
+              <div className="absolute right-0 mt-1 w-52 bg-ink border border-white/10 rounded-xl shadow-xl py-1.5 z-50">
+                {moreLinks.map(l => (
+                  <button key={l.label}
+                    onClick={() => { setMoreOpen(false); l.action ? l.action() : navigate(l.path); }}
+                    className={`w-full flex items-center gap-2.5 text-sm font-medium px-4 py-2.5 text-left transition-all ${
+                      activeRoute === l.path ? "text-white bg-white/10" : "text-white/60 hover:text-white hover:bg-white/8"
+                    }`}>
+                    <l.icon size={14} />{l.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right side */}

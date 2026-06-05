@@ -10,7 +10,7 @@ import { useAuth } from "../context/AuthContext";
 import { formatUGX, MARKET_PRICES, getActorStores } from "../data/demo";
 import { REGIONS, DISTRICTS } from "../data/geo";
 import {
-  getSupplyRequests, getSupplyRequest, createSupplyRequest, postOffer,
+  getSupplyRequests, getSupplyRequest, createSupplyRequest, updateSupplyRequest, postOffer,
   acceptOffer, counterOffer, declineOffer, isClosingSoon, STATUS_LABELS,
   canPost, canRespond, RECURRENCE_OPTIONS, PAYMENT_METHODS, TRANSPORT_TERMS,
   CUSTOMS_OPTIONS, CERTIFICATION_OPTIONS,
@@ -144,7 +144,7 @@ function DeliveryPointFields({ f, set, user }) {
             <div className="grid md:grid-cols-3 gap-3">
               <div>
                 <span className="text-[10px] uppercase tracking-wider text-warm-muted">Destination country</span>
-                <div className={`${inputCls} bg-warm-bg text-warm-text flex items-center gap-1.5 mt-1`}><Globe size={13} /> {user.country || "—"}</div>
+                <div className={`${inputCls} bg-warm-bg text-warm-text flex items-center gap-1.5 mt-1`}><Globe size={13} /> {user.country || "-"}</div>
               </div>
               <div>
                 <span className="text-[10px] uppercase tracking-wider text-warm-muted">City</span>
@@ -174,7 +174,7 @@ function DeliveryPointFields({ f, set, user }) {
             <div>
               <select value={selectedStoreId} onChange={(e) => pickStore(e.target.value)} className={inputCls}>
                 <option value="">Select one of your registered stores</option>
-                {myStores.map((s) => <option key={s.id} value={s.id}>{s.name} — {s.district}</option>)}
+                {myStores.map((s) => <option key={s.id} value={s.id}>{s.name} - {s.district}</option>)}
               </select>
               {f.deliveryAddress && <p className="text-[11px] text-warm-muted mt-1 flex items-center gap-1"><MapPin size={11} /> {f.deliveryAddress}, {f.deliveryDistrict}</p>}
             </div>
@@ -193,9 +193,18 @@ function DeliveryPointFields({ f, set, user }) {
   );
 }
 
-function NewRequestModal({ user, onClose, onCreated }) {
+export function NewRequestModal({ user, onClose, onCreated, existing = null }) {
   const isFBR = user?.role === "FBR";
-  const [f, setF] = useState({ ...EMPTY_FORM, customs: isFBR ? CUSTOMS_OPTIONS[1] : CUSTOMS_OPTIONS[0] });
+  const initial = existing
+    ? {
+        ...EMPTY_FORM, ...existing,
+        quantity: String(existing.quantity ?? ""),
+        targetPrice: existing.targetPrice != null ? String(existing.targetPrice) : "",
+        certifications: existing.certifications || [],
+        paymentMethods: existing.paymentMethods || [],
+      }
+    : { ...EMPTY_FORM, customs: isFBR ? CUSTOMS_OPTIONS[1] : CUSTOMS_OPTIONS[0] };
+  const [f, setF] = useState(initial);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const set = (fields) => setF((p) => ({ ...p, ...fields }));
@@ -216,14 +225,16 @@ function NewRequestModal({ user, onClose, onCreated }) {
       targetPrice: f.targetPrice ? Number(f.targetPrice) : null,
       deliveryMode: f.transportTerms,
     };
-    const created = await createSupplyRequest(payload, user);
+    const res = existing ? await updateSupplyRequest(existing.id, payload) : await createSupplyRequest(payload, user);
     setSaving(false);
-    onCreated(created);
+    onCreated(res);
   }
 
+  const verb = existing ? "Edit" : isFBR ? "Raise a" : "Post a";
+  const noun = isFBR ? "Supply Note" : "supply request";
   return (
-    <Modal onClose={onClose} title={isFBR ? "Raise a Supply Note" : "Post a supply request"}
-      subtitle={isFBR ? "State what you wish to source from verified Ugandan suppliers." : "Post what you need; matched suppliers respond with offers."}>
+    <Modal onClose={onClose} title={`${verb} ${noun}`}
+      subtitle={existing ? "Update the details of your request." : (isFBR ? "State what you wish to source from verified Ugandan suppliers." : "Post what you need; matched suppliers respond with offers.")}>
       <div className="space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
           <div>
@@ -260,7 +271,7 @@ function NewRequestModal({ user, onClose, onCreated }) {
 
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className={labelField}>Target price / unit <span className="text-warm-muted normal-case font-normal">(optional — leave blank for open)</span></label>
+            <label className={labelField}>Target price / unit <span className="text-warm-muted normal-case font-normal">(optional - leave blank for open)</span></label>
             <input type="number" value={f.targetPrice} onChange={(e) => set({ targetPrice: e.target.value })} className={inputCls} placeholder="UGX per unit" />
           </div>
           <div>
@@ -319,7 +330,7 @@ function NewRequestModal({ user, onClose, onCreated }) {
         <div>
           <label className={labelField}>Visibility</label>
           <div className="flex gap-2">
-            {[["public", "Public — any verified seller"], ["private", "Private — my value chain only"]].map(([v, l]) => (
+            {[["public", "Public - any verified seller"], ["private", "Private - my value chain only"]].map(([v, l]) => (
               <Chip key={v} on={f.visibility === v} onClick={() => set({ visibility: v })}>{l}</Chip>
             ))}
           </div>
@@ -331,7 +342,7 @@ function NewRequestModal({ user, onClose, onCreated }) {
           <button onClick={onClose} className="px-5 py-2.5 border border-warm-border rounded-lg text-sm font-medium text-warm-text hover:text-ink hover:border-ink transition-all">Cancel</button>
           <button onClick={submit} disabled={saving}
             className="flex-1 bg-gold hover:bg-gold-mid text-ink font-bold py-2.5 rounded-lg text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50">
-            {saving ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />} {isFBR ? "Raise Supply Note" : "Post supply request"}
+            {saving ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />} {existing ? "Save changes" : isFBR ? "Raise Supply Note" : "Post supply request"}
           </button>
         </div>
       </div>
@@ -444,7 +455,7 @@ function RequestDetailModal({ id, user, onClose, onChanged }) {
   }
   async function accept(offer) {
     const res = await acceptOffer(req.id, offer.id, user);
-    setBanner(`Offer accepted — order ${res.order.id} created in the purchase flow (Step 3: Quotation confirmed).`);
+    setBanner(`Offer accepted - order ${res.order.id} created in the purchase flow (Step 3: Quotation confirmed).`);
     await load(); onChanged?.();
   }
   async function counter(offer, c) { await counterOffer(req.id, offer.id, c, user); await load(); onChanged?.(); }
@@ -467,7 +478,7 @@ function RequestDetailModal({ id, user, onClose, onChanged }) {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {[
             ["Quantity", `${Number(req.quantity).toLocaleString()} ${req.unit}`],
-            ["Grade", req.grade || "—"],
+            ["Grade", req.grade || "-"],
             ["Target price", req.targetPrice ? `${formatUGX(req.targetPrice)}/${req.unit}` : "Open to offers"],
             ["Delivery point", req.deliveryDistrict],
             ...(req.deliveryStore ? [["Store / facility", req.deliveryStore]] : []),
@@ -477,7 +488,7 @@ function RequestDetailModal({ id, user, onClose, onChanged }) {
             ["Closes", req.validUntil],
             ["Transport", req.transportTerms],
             ["Customs", req.customs],
-            ["Payment", (req.paymentMethods || []).join(", ") || "—"],
+            ["Payment", (req.paymentMethods || []).join(", ") || "-"],
           ].map(([l, v]) => (
             <div key={l} className="bg-warm-bg border border-warm-border rounded-lg p-2.5">
               <div className="text-[10px] uppercase tracking-wider text-warm-muted">{l}</div>
@@ -594,7 +605,7 @@ export default function SourcingBoard() {
           <div>
             <div className="flex items-center gap-2 text-gold text-xs font-bold uppercase tracking-wider mb-2"><Sparkles size={14} /> Sourcing Board</div>
             <h1 className="text-white font-bold text-2xl md:text-3xl mb-2">Supply Requests &amp; Sourcing Board</h1>
-            <p className="text-white/50 text-sm max-w-2xl leading-relaxed">The demand side of trade: buyers — including foreign traders — post what they want to source, and verified Ugandan suppliers respond with offers.</p>
+            <p className="text-white/50 text-sm max-w-2xl leading-relaxed">The demand side of trade: buyers - including foreign traders - post what they want to source, and verified Ugandan suppliers respond with offers. Requests to buy your existing listings appear separately under Purchase Requests.</p>
           </div>
           {userCanPost && (
             <button onClick={() => setShowNew(true)}

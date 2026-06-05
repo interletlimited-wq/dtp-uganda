@@ -16,6 +16,7 @@ const ROLE_COLORS = {
   BYR: "bg-teal-50 text-teal-700 border-teal-200",
   TRP: "bg-slate-50 text-slate-700 border-slate-200",
   CSM: "bg-pink-50 text-pink-700 border-pink-200",
+  WHS: "bg-lime-50 text-lime-700 border-lime-200",
   FBR: "bg-cyan-50 text-cyan-700 border-cyan-200",
   ADMIN: "bg-gray-50 text-gray-700 border-gray-200",
   GOU: "bg-indigo-50 text-indigo-700 border-indigo-200",
@@ -77,7 +78,7 @@ export default function Login() {
 
       <div className="flex-1 flex">
 
-        {/* ── LEFT PANEL — Uganda branding ── */}
+        {/* ── LEFT PANEL - Uganda branding ── */}
         <div className="hidden lg:flex flex-col w-[45%] bg-ink relative overflow-hidden">
           {/* Background pattern */}
           <div className="absolute inset-0 bg-gradient-to-br from-ink via-ink to-[#1a1a1a]" />
@@ -94,7 +95,7 @@ export default function Login() {
             {/* Top spacer */}
             <div />
 
-            {/* Centre — Coat of arms + text */}
+            {/* Centre - Coat of arms + text */}
             <div className="flex flex-col items-center text-center">
               {/* Coat of arms */}
               <div className="relative mb-8">
@@ -120,7 +121,7 @@ export default function Login() {
               </p>
             </div>
 
-            {/* Bottom — stats */}
+            {/* Bottom - stats */}
             <div className="grid grid-cols-3 gap-4 border-t border-white/10 pt-8">
               {[
                 ["179", "Districts"],
@@ -136,7 +137,7 @@ export default function Login() {
           </div>
         </div>
 
-        {/* ── RIGHT PANEL — Login form ── */}
+        {/* ── RIGHT PANEL - Login form ── */}
         <div className="flex-1 flex items-center justify-center px-6 py-12">
           <div className="w-full max-w-md">
 

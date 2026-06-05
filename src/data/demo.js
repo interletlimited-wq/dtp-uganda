@@ -380,7 +380,7 @@ export function getActorNotificationsFallbackWithRuntime(username, role) {
   return [...runtime, ...fallback];
 }
 
-// ── A8 / A10 — Trust ticks ───────────────────────────────────────────────
+// ── A8 / A10 - Trust ticks ───────────────────────────────────────────────
 // Identity verification (NIRA / URA / URSB / International) is PRIVATE: it is
 // shown only on the actor's own profile and to platform admins. The only
 // verification signal the public sees is this rating-based trust tick. A green
@@ -403,7 +403,7 @@ export function getTrustTick(ratingCount = 0) {
   return ratingCount >= TRUST_TICK_GREEN_MIN ? "green" : "gray";
 }
 
-export const BUYER_ROLES = ["BYR", "EXP", "MFR", "AGT", "IMP", "CSM", "FBR"];
+export const BUYER_ROLES = ["BYR", "EXP", "MFR", "AGT", "IMP", "CSM", "FBR", "WHS"];
 
 export const ROLE_DEFAULT_CATEGORIES = {
   AGR: ["Food Crops", "Cash Crops"],
@@ -415,6 +415,7 @@ export const ROLE_DEFAULT_CATEGORIES = {
   BYR: ["Food Crops", "Cash Crops", "Processed Agricultural Products", "Fisheries"],
   CSM: ["Food Crops", "Processed Agricultural Products"],
   FBR: ["Cash Crops", "Food Crops", "Processed Agricultural Products", "Fisheries"],
+  WHS: ["Food Crops", "Cash Crops", "Processed Agricultural Products", "Manufactured", "Fisheries"],
 };
 
 export const BATCHES = [
